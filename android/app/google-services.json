@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "739170846158",
+    "firebase_url": "https://opinion-app-13b8c.firebaseio.com",
+    "project_id": "opinion-app-13b8c",
+    "storage_bucket": "opinion-app-13b8c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:739170846158:android:fa8734ed19b06300e1579f",
+        "android_client_info": {
+          "package_name": "de.fs.opinion_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "739170846158-6ev9gm11h0peucvcgu3nc0l9g6baih6a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD21bsJKP5IC-mgZVqEQXCXbWVzX7MyaFQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "739170846158-6ev9gm11h0peucvcgu3nc0l9g6baih6a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
