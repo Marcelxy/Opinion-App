@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:opinion_app/models/question.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
@@ -13,8 +14,10 @@ class _QuestionPageState extends State<QuestionPage> {
   bool _loadNextQuestion;
   bool _isEvaluateButtonEnabled;
   int _randomSelectedQuestion;
-  double percentValue;
-  DocumentSnapshot question;
+  DocumentSnapshot questionSnapshot;
+  List<String> answers;
+  List<int> counterAnswers;
+  Question question;
 
   @override
   void initState() {
@@ -22,7 +25,6 @@ class _QuestionPageState extends State<QuestionPage> {
     _loadNextQuestion = true;
     _isEvaluateButtonEnabled = true;
     _randomSelectedQuestion = 0;
-    percentValue = 0.0;
     super.initState();
   }
 
@@ -63,7 +65,8 @@ class _QuestionPageState extends State<QuestionPage> {
                                   Padding(
                                     padding: const EdgeInsets.only(bottom: 24.0),
                                     child: Text(
-                                      question.data['question'],
+                                      question.question,
+                                      //questionSnapshot.data['question'],
                                       textAlign: TextAlign.center,
                                       style: TextStyle(fontSize: 20.0, color: Colors.white70),
                                     ),
@@ -76,7 +79,7 @@ class _QuestionPageState extends State<QuestionPage> {
                                         icon: Icon(Icons.thumb_up, color: Colors.white70),
                                         onPressed: () => _isEvaluateButtonEnabled ? _setVoting(true) : null,
                                       ),
-                                      Text(_isEvaluateButtonEnabled ? '?' : question.data['voting'].toString(),
+                                      Text(_isEvaluateButtonEnabled ? '?' : question.voting.toString(),
                                           style: TextStyle(color: Colors.white70)),
                                       IconButton(
                                         icon: Icon(Icons.thumb_down, color: Colors.white70),
@@ -92,7 +95,8 @@ class _QuestionPageState extends State<QuestionPage> {
                                         borderRadius: new BorderRadius.circular(10.0),
                                       ),
                                       child: Text(
-                                        question.data['answer1'],
+                                        question.answers[0],
+                                        //answers[0],
                                       ),
                                     ),
                                   ),
@@ -104,7 +108,7 @@ class _QuestionPageState extends State<QuestionPage> {
                                       ),
                                       onPressed: () => _incrementCounterAnswer(2),
                                       child: Text(
-                                        question.data['answer2'],
+                                        question.answers[1],
                                       ),
                                     ),
                                   ),
@@ -119,36 +123,36 @@ class _QuestionPageState extends State<QuestionPage> {
                                 children: <Widget>[
                                   Padding(
                                     padding: const EdgeInsets.only(bottom: 20.0),
-                                    child: Text(question.data['question'], textAlign: TextAlign.center),
+                                    child: Text(question.question, textAlign: TextAlign.center),
                                   ),
-                                  Text(question.data['answer1'].toString()),
+                                  Text(question.answers[0]),
                                   Padding(
                                     padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 20.0),
                                     child: LinearPercentIndicator(
                                       width: 250.0,
                                       lineHeight: 14.0,
-                                      percent: _calculatePercentValue(1),
+                                      percent: question.calculatePercentValue(1),
                                       backgroundColor: Colors.grey,
                                       progressColor: Colors.white70,
                                       center: Text(
-                                        _getPercentValue(),
+                                        question.calculatePercentValue(1, true).toStringAsFixed(1) + "%",
                                         style: new TextStyle(fontSize: 12.0),
                                       ),
                                       animation: true,
                                       animationDuration: 1000,
                                     ),
                                   ),
-                                  Text(question.data['answer2'].toString()),
+                                  Text(question.answers[1]),
                                   Padding(
                                     padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 20.0),
                                     child: LinearPercentIndicator(
                                       width: 250.0,
                                       lineHeight: 14.0,
-                                      percent: _calculatePercentValue(2),
+                                      percent: question.calculatePercentValue(2),
                                       backgroundColor: Colors.grey,
                                       progressColor: Colors.white70,
                                       center: Text(
-                                        _getPercentValue(),
+                                        question.calculatePercentValue(2, true).toStringAsFixed(1) + "%",
                                         style: new TextStyle(fontSize: 12.0),
                                       ),
                                       animation: true,
@@ -192,7 +196,16 @@ class _QuestionPageState extends State<QuestionPage> {
         int qid = questions.documents.length;
         var random = new Random();
         _randomSelectedQuestion = random.nextInt(qid);
-        question = await Firestore.instance.collection('questions').document(_randomSelectedQuestion.toString()).get();
+        questionSnapshot =
+            await Firestore.instance.collection('questions').document(_randomSelectedQuestion.toString()).get();
+        answers = List.from(questionSnapshot.data['answers']);
+        counterAnswers = List.from(questionSnapshot.data['counterAnswers']);
+        question = new Question(
+          questionSnapshot.data['question'],
+          answers,
+          counterAnswers,
+          questionSnapshot.data['voting'],
+        );
       }
     } catch (error) {
       print('READ QUESTION ERROR: ' + error);
@@ -200,7 +213,7 @@ class _QuestionPageState extends State<QuestionPage> {
         content: const Text('Frage konnte nicht geladen werden. Bitte erneut versuchen.'),
       ));
     }
-    return question;
+    return questionSnapshot;
   }
 
   _setNextQuestion() {
@@ -209,58 +222,33 @@ class _QuestionPageState extends State<QuestionPage> {
     });
   }
 
-  void _incrementCounterAnswer(int answer) async {
-    String updatedValue;
+  Future<void> _incrementCounterAnswer(int answer) async {
     if (answer == 1) {
-      updatedValue = 'counterAnswer1';
+      question.counterAnswer[0]++;
     } else if (answer == 2) {
-      updatedValue = 'counterAnswer2';
+      question.counterAnswer[1]++;
     }
-    await Firestore.instance
-        .collection('questions')
-        .document(_randomSelectedQuestion.toString())
-        .updateData({updatedValue: FieldValue.increment(1)});
-    // TODO nochmaliges laden aller Fragedaten nur für einen Wert (countAnswer1 oder countAnswer2) nicht optimal => Verbesserungspotenzial!
-    question = await Firestore.instance.collection('questions').document(_randomSelectedQuestion.toString()).get();
+    Firestore.instance.collection('questions').document(_randomSelectedQuestion.toString()).setData({
+      'question': question.question,
+      'voting': question.voting,
+      'answers': FieldValue.arrayUnion(answers),
+      'counterAnswers': counterAnswers,
+    });
+    questionSnapshot =
+        await Firestore.instance.collection('questions').document(_randomSelectedQuestion.toString()).get();
     setState(() {
       _showResults = true;
     });
   }
 
-  /*
-  Percent Value e.g. 0.58 stand for 58%.
-  return e.g. 0.58
-   */
-  double _calculatePercentValue(int answer) {
-    int counterAnswer1 = question.data['counterAnswer1'];
-    int counterAnswer2 = question.data['counterAnswer2'];
-    percentValue = 0.0;
-    if (answer == 1) {
-      percentValue = counterAnswer1 / (counterAnswer1 + counterAnswer2);
-    } else if (answer == 2) {
-      percentValue = counterAnswer2 / (counterAnswer1 + counterAnswer2);
-    }
-    return percentValue;
-  }
-
-  String _getPercentValue() {
-    percentValue *= 100;
-    return percentValue.toStringAsFixed(1) + '%';
-  }
-
   Future<void> _setVoting(bool thumpUp) async {
-    int voting = 0;
-    if (thumpUp) {
-      voting = 1;
-    } else {
-      voting = -1;
-    }
+    thumpUp ? question.voting++ : question.voting--;
     await Firestore.instance
         .collection('questions')
         .document(_randomSelectedQuestion.toString())
-        .updateData({'voting': FieldValue.increment(voting)});
-    // TODO nochmaliges laden aller Fragedaten nur für einen Wert (voting) nicht optimal => Verbesserungspotenzial!
-    question = await Firestore.instance.collection('questions').document(_randomSelectedQuestion.toString()).get();
+        .updateData({'voting': question.voting});
+    questionSnapshot =
+        await Firestore.instance.collection('questions').document(_randomSelectedQuestion.toString()).get();
     setState(() {
       _isEvaluateButtonEnabled = false;
     });

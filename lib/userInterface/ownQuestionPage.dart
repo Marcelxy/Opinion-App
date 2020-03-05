@@ -11,6 +11,8 @@ class MyQuestionPage extends StatefulWidget {
 }
 
 class _MyQuestionPageState extends State<MyQuestionPage> {
+  FirebaseUser user;
+  List<Question> ownQuestionList = [];
   final _addQuestionFormKey = GlobalKey<FormState>();
   final _question = TextEditingController();
   final _answer1 = TextEditingController();
@@ -19,10 +21,6 @@ class _MyQuestionPageState extends State<MyQuestionPage> {
   final Duration delay = Duration(milliseconds: 300);
   GlobalKey rectGetterKey = RectGetter.createGlobalKey();
   Rect rect;
-  FirebaseUser user;
-  FixedExtentScrollController fixedExtentScrollController = new FixedExtentScrollController();
-  List<Question> ownQuestionList = [];
-  double percentValue;
 
   @override
   void dispose() {
@@ -50,61 +48,65 @@ class _MyQuestionPageState extends State<MyQuestionPage> {
                 }
                 return Container(
                   color: Colors.white,
-                  child: ListWheelScrollView(
-                      itemExtent: 300,
-                      diameterRatio: 3.0,
-                      children: <Widget>[
-                        // ignore: sdk_version_ui_as_code
-                        ...ownQuestionList.map((Question question) {
-                          return Container(
-                            margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                              gradient: LinearGradient(
-                                colors: [Colors.blue.shade600, Color.fromRGBO(143, 148, 251, 1)],
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                              ),
+                  child: ListWheelScrollView(itemExtent: 300, diameterRatio: 3.0, children: <Widget>[
+                    // ignore: sdk_version_ui_as_code
+                    ...ownQuestionList.map((Question question) {
+                      return Container(
+                        margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                          gradient: LinearGradient(
+                            colors: [Colors.blue.shade600, Color.fromRGBO(143, 148, 251, 1)],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                        ),
+                        padding: EdgeInsets.all(25),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Text(question.question, style: TextStyle(color: Colors.white70)),
                             ),
-                            padding: EdgeInsets.all(25),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            Row(
                               children: <Widget>[
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 8.0),
-                                  child: Text(question.question, style: TextStyle(color: Colors.white70)),
-                                ),
-                                Row(
-                                  children: <Widget>[
-                                    Icon(
-                                      Icons.thumbs_up_down,
-                                      color: Colors.white70,
-                                      size: 22.0,
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 8.0),
-                                      child: Text(question.voting.toString(), style: TextStyle(color: Colors.white70)),
-                                    ),
-                                  ],
+                                Icon(
+                                  Icons.thumbs_up_down,
+                                  color: Colors.white70,
+                                  size: 22.0,
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.only(bottom: 8.0),
-                                  child: Text(
-                                      _calculateOverallAnswerValue(question.counterAnswer1, question.counterAnswer2)
-                                              .toString() +
-                                          ' Antworten insgesamt',
-                                      style: TextStyle(color: Colors.white70)),
+                                  padding: const EdgeInsets.only(left: 8.0),
+                                  child: Text(question.voting.toString(), style: TextStyle(color: Colors.white70)),
                                 ),
-                                Text(question.counterAnswer1.toString(), style: TextStyle(color: Colors.white70)),
-                                Text(percentValue.toString(), style: TextStyle(color: Colors.white70)),
-                                Text(question.counterAnswer2.toString(), style: TextStyle(color: Colors.white70)),
-                                Text(percentValue.toString(), style: TextStyle(color: Colors.white70)),
                               ],
                             ),
-                          );
-                        })
-                      ]),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Text(
+                                  question
+                                          .calculateOverallAnswerValue(
+                                              question.counterAnswer[0], question.counterAnswer[1])
+                                          .toString() +
+                                      ' Antworten insgesamt',
+                                  style: TextStyle(color: Colors.white70)),
+                            ),
+                            Text(question.answers[0]),
+                            Text(question.counterAnswer[0].toString(), style: TextStyle(color: Colors.white70)),
+                            Text(question.calculatePercentValue(1, true).toStringAsFixed(1) + '%',
+                                style: TextStyle(color: Colors.white70)),
+
+                            Text(question.answers[1]),
+                            Text(question.counterAnswer[1].toString(), style: TextStyle(color: Colors.white70)),
+                            Text(question.calculatePercentValue(2, true).toStringAsFixed(1) + '%',
+                                style: TextStyle(color: Colors.white70)),
+                          ],
+                        ),
+                      );
+                    }),
+                  ]),
                 );
               }),
           floatingActionButton: RectGetter(
@@ -213,17 +215,22 @@ class _MyQuestionPageState extends State<MyQuestionPage> {
   void _createQuestionInCloudFirestore() {
     try {
       if (_addQuestionFormKey.currentState.validate()) {
+        List<String> answers = List<String>();
+        answers.add(_answer1.text);
+        answers.add(_answer2.text);
+        List<int> counterAnswers = List<int>();
+        counterAnswers.add(0);
+        counterAnswers.add(0);
+
         Firestore.instance.collection('questions').getDocuments().then((myDocuments) async {
           user = await FirebaseAuth.instance.currentUser();
-          // TODO ID kann theoetisch mehrmals vergeben werden bei sehr vielen gleichzeitigen Zugriffen. => Verbesserungspotenzial
+          // TODO ID kann theoretisch mehrmals vergeben werden bei sehr vielen gleichzeitigen Zugriffen. => Verbesserungspotenzial
           int qid = myDocuments.documents.length;
           Firestore.instance.collection('questions').document(qid.toString()).setData({
             'question': _question.text,
-            'answer1': _answer1.text,
-            'answer2': _answer2.text,
-            'counterAnswer1': 0,
-            'counterAnswer2': 0,
             'voting': 0,
+            'answers': FieldValue.arrayUnion(answers),
+            'counterAnswers': counterAnswers,
           });
           Firestore.instance.collection('users').document(user.uid).updateData({
             'ownQuestions': FieldValue.arrayUnion([qid.toString()])
@@ -247,39 +254,18 @@ class _MyQuestionPageState extends State<MyQuestionPage> {
     DocumentSnapshot userInfo = await Firestore.instance.collection('users').document(user.uid).get();
     ownQuestionList.clear();
     for (int i = 0; i < userInfo.data['ownQuestions'].length; i++) {
-      DocumentSnapshot questionData =
+      DocumentSnapshot questionSnapshot =
           await Firestore.instance.collection('questions').document(userInfo.data['ownQuestions'][i]).get();
+      List<String> answers = List.from(questionSnapshot['answers']);
+      List<int> counterAnswers = List.from(questionSnapshot['counterAnswers']);
       Question question = new Question(
-          questionData.data['question'],
-          questionData.data['answer1'],
-          questionData.data['answer2'],
-          questionData.data['counterAnswer1'],
-          questionData.data['counterAnswer2'],
-          questionData.data['voting']);
+        questionSnapshot.data['question'],
+        answers,
+        counterAnswers,
+        questionSnapshot.data['voting'],
+      );
       ownQuestionList.add(question);
     }
     return ownQuestionList;
-  }
-
-  int _calculateOverallAnswerValue(int counterAnswer1, int counterAnswer2) {
-    return counterAnswer1 + counterAnswer2;
-  }
-
-  double _calculatePercentValue(int answer, int counterAnswer1, int counterAnswer2) {
-    percentValue = 0.0;
-    if (counterAnswer1 == 0 && counterAnswer2 == 0) {
-      return percentValue;
-    }
-    if (answer == 1) {
-      percentValue = counterAnswer1 / (counterAnswer1 + counterAnswer2);
-    } else if (answer == 2) {
-      percentValue = counterAnswer2 / (counterAnswer1 + counterAnswer2);
-    }
-    return percentValue;
-  }
-
-  String _getPercentValue() {
-    percentValue *= 100;
-    return percentValue.toStringAsFixed(1) + '%';
   }
 }

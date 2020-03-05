@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:opinion_app/userInterface/profilPage.dart';
 import 'package:opinion_app/userInterface/questionPage.dart';
-import 'package:opinion_app/userInterface/myQuestionPage.dart';
+import 'package:opinion_app/userInterface/ownQuestionPage.dart';
 
 class OpinionPage extends StatefulWidget {
   @override

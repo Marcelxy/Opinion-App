@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:opinion_app/userInterface/loginPage.dart';
+import 'package:opinion_app/userInterface/adminConsolePage.dart';
 
 class ProfilPage extends StatefulWidget {
   @override
@@ -55,6 +56,12 @@ class _ProfilPageState extends State<ProfilPage> {
                   'Ausloggen',
                 ),
               ),
+              RaisedButton(
+                onPressed: () => _toPage(context),
+                child: Text(
+                  'Admin Konsole',
+                ),
+              ),
             ],
           ),
         ),
@@ -72,6 +79,12 @@ class _ProfilPageState extends State<ProfilPage> {
     await _auth.signOut();
     setState(() {
       Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+    });
+  }
+
+  void _toPage(BuildContext context) {
+    setState(() {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => AdminConsolePage()));
     });
   }
 }
