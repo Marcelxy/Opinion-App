@@ -12,7 +12,7 @@ class _OpinionPageState extends State<OpinionPage> {
   int currentPageNumber = 0;
   final List<Widget> pages = [
     QuestionPage(),
-    MyQuestionPage(),
+    OwnQuestionPage(),
     ProfilPage(),
   ];
   Widget currentPage = QuestionPage();
@@ -59,7 +59,7 @@ class _OpinionPageState extends State<OpinionPage> {
           currentPageNumber = 0;
           break;
         case 1:
-          currentPage = MyQuestionPage();
+          currentPage = OwnQuestionPage();
           currentPageNumber = 1;
           break;
         case 2:

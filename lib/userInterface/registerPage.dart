@@ -216,7 +216,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                     SizedBox(
-                      height: 40.0,
+                      height: 42.0,
                     ),
                     FadeAnimation(
                       1.5,
@@ -224,7 +224,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         onTap: () => _toPage(context, LoginPage()),
                         child: Text(
                           'Zum Login',
-                          style: TextStyle(color: Color.fromRGBO(143, 148, 251, 1)),
+                          style: TextStyle(color: Color.fromRGBO(143, 148, 251, 1), fontSize: 16.0),
                         ),
                       ),
                     ),

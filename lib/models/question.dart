@@ -1,11 +1,12 @@
 class Question {
   final String question;
   int voting;
+  String status;
   List<String> answers;
   List<int> counterAnswer;
   double _percentValue;
 
-  Question(this.question, this.answers, this.counterAnswer, [this.voting = 0]);
+  Question(this.question, this.answers, this.counterAnswer, [this.status = 'Wird geprüft', this.voting = 0]);
 
   /// Berechnet Prozentwert für übergebene Antwort.
   /// multiply = false : 0.58 (Default)

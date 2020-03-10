@@ -212,7 +212,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(
-                      height: 20.0,
+                      height: 23.0,
                     ),
                     FadeAnimation(
                       1.5,
@@ -220,12 +220,12 @@ class _LoginPageState extends State<LoginPage> {
                         onTap: () => _toPage(context, ForgotPasswordPage()),
                         child: Text(
                           'Passwort vergessen?',
-                          style: TextStyle(color: Color.fromRGBO(143, 148, 251, 1)),
+                          style: TextStyle(color: Color.fromRGBO(143, 148, 251, 1), fontSize: 16.0),
                         ),
                       ),
                     ),
                     SizedBox(
-                      height: 26.0,
+                      height: 23.0,
                     ),
                     FadeAnimation(
                       1.5,
@@ -233,7 +233,7 @@ class _LoginPageState extends State<LoginPage> {
                         onTap: () => _toPage(context, RegisterPage()),
                         child: Text(
                           'Zur Registrierung',
-                          style: TextStyle(color: Color.fromRGBO(143, 148, 251, 1)),
+                          style: TextStyle(color: Color.fromRGBO(143, 148, 251, 1), fontSize: 16.0),
                         ),
                       ),
                     ),
