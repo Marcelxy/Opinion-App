@@ -18,6 +18,7 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final _registerFormKey = GlobalKey<FormState>();
+  final _username = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
   ProgressDialog _progressDialog;
@@ -25,6 +26,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   void dispose() {
+    _username.dispose();
     _email.dispose();
     _password.dispose();
     super.dispose();
@@ -141,6 +143,23 @@ class _RegisterPageState extends State<RegisterPage> {
                                 padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
                                 child: TextFormField(
                                   decoration: const InputDecoration(
+                                    icon: Icon(Icons.person, size: 25.0, color: Color.fromRGBO(143, 148, 251, 0.95)),
+                                    labelText: 'Benutzername...',
+                                    labelStyle: TextStyle(color: Color.fromRGBO(143, 148, 251, 1)),
+                                    contentPadding: EdgeInsets.only(bottom: 12.0),
+                                    isDense: true,
+                                    counterText: '',
+                                  ),
+                                  keyboardType: TextInputType.text,
+                                  controller: _username,
+                                  validator: _validateUsername,
+                                  maxLength: 30,
+                                ),
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
+                                child: TextFormField(
+                                  decoration: const InputDecoration(
                                     icon: Icon(Icons.email, size: 25.0, color: Color.fromRGBO(143, 148, 251, 0.95)),
                                     labelText: 'E-Mail...',
                                     labelStyle: TextStyle(color: Color.fromRGBO(143, 148, 251, 1)),
@@ -216,7 +235,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                     SizedBox(
-                      height: 42.0,
+                      height: 21.0,
                     ),
                     FadeAnimation(
                       1.5,
@@ -236,6 +255,17 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
       ),
     );
+  }
+
+  String _validateUsername(String username) {
+    int minLength = 3;
+    if (username.trim().isEmpty) {
+      return 'Bitte Benutzername eingeben.';
+    } else if (username.length < minLength) {
+      return 'Mindestens $minLength Zeichen benötigt.';
+    } else {
+      return null;
+    }
   }
 
   /// E-Mail Validierung siehe: https://pub.dev/packages/email_validator
@@ -299,13 +329,13 @@ class _RegisterPageState extends State<RegisterPage> {
     try {
       final userSnapshot = await Firestore.instance.collection('users').document(user.uid).get();
       if (userSnapshot == null || !userSnapshot.exists) {
-        int level = 1;
+        String username = _username.text.toString();
         int xp = 0;
         Firestore.instance
             .collection('users')
             .document(user.uid)
-            .setData({'email': user.email, 'level': level, 'xp': xp});
-        User(user.email, level, xp);
+            .setData({'email': user.email, 'username': username, 'xp': xp});
+        User(user.email, username, xp);
       }
     } catch (error) {
       print('CREATE USER ERROR: ' + error);

@@ -43,7 +43,7 @@ class _ProfilPageState extends State<ProfilPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Text(user.data['email']),
-                        Text('Level: ' + user.data['level'].toString()),
+                        Text('Benutzername: ' + user.data['username']),
                         Text('Erfahrungspunkte: ' + user.data['xp'].toString()),
                       ],
                     );

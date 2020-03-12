@@ -31,39 +31,44 @@ class _CreateQuestionPageState extends State<CreateQuestionPage> {
           Center(
             child: Form(
               key: _addQuestionFormKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      hintText: 'Fragetext',
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        hintText: 'Fragetext',
+                      ),
+                      keyboardType: TextInputType.multiline,
+                      maxLines: null,
+                      controller: _question,
+                      validator: _validateQuestion,
+                      maxLength: 150,
                     ),
-                    controller: _question,
-                    validator: _validateQuestion,
-                    maxLength: 150,
-                  ),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      hintText: 'Antwort 1',
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        hintText: 'Antwort 1',
+                      ),
+                      controller: _answer1,
+                      validator: _validateAnswers,
+                      maxLength: 50,
                     ),
-                    controller: _answer1,
-                    validator: _validateAnswers,
-                    maxLength: 50,
-                  ),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      hintText: 'Antwort 2',
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        hintText: 'Antwort 2',
+                      ),
+                      controller: _answer2,
+                      validator: _validateAnswers,
+                      maxLength: 50,
                     ),
-                    controller: _answer2,
-                    validator: _validateAnswers,
-                    maxLength: 50,
-                  ),
-                  FlatButton(
-                    child: Text('Erstellen'),
-                    onPressed: () => _createQuestionInCloudFirestore(),
-                  ),
-                ],
+                    FlatButton(
+                      child: Text('Erstellen'),
+                      onPressed: () => _createQuestionInCloudFirestore(),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -119,7 +124,7 @@ class _CreateQuestionPageState extends State<CreateQuestionPage> {
         setState(() {
           Navigator.push(context, MaterialPageRoute(builder: (context) => OpinionPage()));
         });
-        // TODO Snackbar anzeigen lassen das Frage erfolgreich erstellt wurde.
+        // TODO Nachricht eventuell Snackbar anzeigen lassen das Frage erfolgreich erstellt wurde.
       }
     } catch (error) {
       print('CREATE QUESTION ERROR: ' + error);

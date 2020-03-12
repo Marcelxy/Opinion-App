@@ -7,8 +7,6 @@ class AdminConsolePage extends StatefulWidget {
   _AdminConsolePageState createState() => _AdminConsolePageState();
 }
 
-enum WhyFarther { harder, smarter, selfStarter, tradingCharter }
-
 class _AdminConsolePageState extends State<AdminConsolePage> {
   @override
   Widget build(BuildContext context) {
@@ -88,8 +86,6 @@ class _AdminConsolePageState extends State<AdminConsolePage> {
         setState(() async {
           await Firestore.instance.collection('questionRepository').document(qid.toString()).delete();
         });
-        // TODO Frageids werden doppelt vergeben müssen eindeutig sein.
-        // TODO hier weitermachen Filter mit verschiedenen Fragestati implementieren und zuerst Status der Frage anzeigen lassen und Collections anlegen siehe _questionNotRelease in Collection notReleasedQuestions kopieren und von questionRepository entfernen.
       });
     } catch (error) {
       print('RELEASE QUESTION ERROR: ' + error.toString());

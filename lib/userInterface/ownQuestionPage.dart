@@ -75,7 +75,7 @@ class _OwnQuestionPageState extends State<OwnQuestionPage> {
                   } else if (snapshot.connectionState == ConnectionState.done) {
                     return Container(
                       color: Colors.white,
-                      child: ListWheelScrollView(itemExtent: 300, diameterRatio: 3.0, children: <Widget>[
+                      child: ListWheelScrollView(itemExtent: 300, diameterRatio: 6.0, children: <Widget>[
                         // ignore: sdk_version_ui_as_code
                         ..._ownQuestionList.map((Question question) {
                           return Container(
@@ -120,11 +120,11 @@ class _OwnQuestionPageState extends State<OwnQuestionPage> {
                                           ' Antworten insgesamt',
                                       style: TextStyle(color: Colors.white70)),
                                 ),
-                                Text(question.answers[0]),
+                                Text(question.answers[0], style: TextStyle(color: Colors.white70)),
                                 Text(question.counterAnswer[0].toString(), style: TextStyle(color: Colors.white70)),
                                 Text(question.calculatePercentValue(1, true).toStringAsFixed(1) + '%',
                                     style: TextStyle(color: Colors.white70)),
-                                Text(question.answers[1]),
+                                Text(question.answers[1], style: TextStyle(color: Colors.white70)),
                                 Text(question.counterAnswer[1].toString(), style: TextStyle(color: Colors.white70)),
                                 Text(question.calculatePercentValue(2, true).toStringAsFixed(1) + '%',
                                     style: TextStyle(color: Colors.white70)),
