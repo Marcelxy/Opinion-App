@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:opinion_app/models/question.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:opinion_app/helper/systemSettings.dart';
 import 'package:opinion_app/userInterface/createQuestionPage.dart';
 
 class OwnQuestionPage extends StatefulWidget {
@@ -23,6 +24,7 @@ class _OwnQuestionPageState extends State<OwnQuestionPage> {
       'Nicht freigegeben',
       'Beendet',
     ];
+    SystemSettings.allowOnlyPortraitOrientation();
     super.initState();
   }
 
@@ -72,11 +74,10 @@ class _OwnQuestionPageState extends State<OwnQuestionPage> {
                 builder: (context, snapshot) {
                   if (snapshot.hasData == false) {
                     return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.connectionState == ConnectionState.done) {
+                  } else if (snapshot.connectionState == ConnectionState.done && _ownQuestionList.isNotEmpty) {
                     return Container(
                       color: Colors.white,
                       child: ListWheelScrollView(itemExtent: 300, diameterRatio: 6.0, children: <Widget>[
-                        // ignore: sdk_version_ui_as_code
                         ..._ownQuestionList.map((Question question) {
                           return Container(
                             margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
@@ -114,9 +115,9 @@ class _OwnQuestionPageState extends State<OwnQuestionPage> {
                                   padding: const EdgeInsets.only(bottom: 8.0),
                                   child: Text(
                                       question
-                                          .calculateOverallAnswerValue(
-                                          question.counterAnswer[0], question.counterAnswer[1])
-                                          .toString() +
+                                              .calculateOverallAnswerValue(
+                                                  question.counterAnswer[0], question.counterAnswer[1])
+                                              .toString() +
                                           ' Antworten insgesamt',
                                       style: TextStyle(color: Colors.white70)),
                                 ),
@@ -134,6 +135,22 @@ class _OwnQuestionPageState extends State<OwnQuestionPage> {
                         }),
                       ]),
                     );
+                  } else if (snapshot.connectionState == ConnectionState.done && _ownQuestionList.isEmpty) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        child: Text(
+                          'Bisher keine Daten vorhanden. Erstelle eine neue Frage.',
+                          style: TextStyle(
+                            fontSize: 20.0,
+                            color: Color.fromRGBO(143, 148, 251, 1),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    );
+                  } else if (snapshot.connectionState == ConnectionState.none) {
+                    return Center(child: Text('Test'));
                   }
                   return Center(child: CircularProgressIndicator());
                 }),
@@ -173,13 +190,15 @@ class _OwnQuestionPageState extends State<OwnQuestionPage> {
     DocumentSnapshot userInfo = await Firestore.instance.collection('users').document(user.uid).get();
     _ownQuestionList.clear();
     for (int i = 0; i < userInfo.data[collection].length; i++) {
-      DocumentSnapshot questionSnapshot = await Firestore.instance.collection(collection).document(userInfo.data[collection][i]).get();
+      DocumentSnapshot questionSnapshot =
+          await Firestore.instance.collection(collection).document(userInfo.data[collection][i]).get();
       List<String> answers = List.from(questionSnapshot['answers']);
       List<int> counterAnswers = List.from(questionSnapshot['counterAnswers']);
       Question question = new Question(
         questionSnapshot.data['question'],
         answers,
         counterAnswers,
+        questionSnapshot.data['username'],
         questionSnapshot.data['status'],
         questionSnapshot.data['voting'],
       );

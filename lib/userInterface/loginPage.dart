@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:progress_dialog/progress_dialog.dart';
+import 'package:opinion_app/helper/systemSettings.dart';
 import 'package:opinion_app/animations/fadeAnimation.dart';
 import 'package:opinion_app/userInterface/opinionPage.dart';
 import 'package:opinion_app/userInterface/registerPage.dart';
@@ -31,6 +32,7 @@ class _LoginPageState extends State<LoginPage> {
     _obscurePassword = false;
     _progressDialog = new ProgressDialog(context);
     _progressDialog.style(message: 'Login...');
+    SystemSettings.allowOnlyPortraitOrientation();
     super.initState();
   }
 
@@ -263,7 +265,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  Future<void> _login(BuildContext context) async {
+  _login(BuildContext context) async {
     bool loginSuccessful = false;
     String errorMessage;
     var internetConnectivity = await (Connectivity().checkConnectivity());

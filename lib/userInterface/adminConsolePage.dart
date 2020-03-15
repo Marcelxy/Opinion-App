@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:opinion_app/helper/systemSettings.dart';
 
 class AdminConsolePage extends StatefulWidget {
   @override
@@ -8,6 +9,12 @@ class AdminConsolePage extends StatefulWidget {
 }
 
 class _AdminConsolePageState extends State<AdminConsolePage> {
+
+  @override
+  void initState() {
+    SystemSettings.allowOnlyPortraitOrientation();
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,13 +42,15 @@ class _AdminConsolePageState extends State<AdminConsolePage> {
                           children: <Widget>[
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
-                              child: RaisedButton(
-                                onPressed: () => _releaseQuestion(true, questions.elementAt(index).data['qid']),
-                                child: Text('Freigeben'),
-                              ),
+                              child: Builder(builder: (BuildContext context) {
+                                return RaisedButton(
+                                  onPressed: () => _releaseQuestion(true, questions.elementAt(index).data['qid'], context),
+                                  child: Text('Freigeben'),
+                                );
+                              }),
                             ),
                             RaisedButton(
-                              onPressed: () => _releaseQuestion(false, questions.elementAt(index).data['qid']),
+                              onPressed: () => _releaseQuestion(false, questions.elementAt(index).data['qid'], context),
                               child: Text('Nicht freigeben'),
                             ),
                           ],
@@ -57,15 +66,17 @@ class _AdminConsolePageState extends State<AdminConsolePage> {
     );
   }
 
-  Future<void> _releaseQuestion(bool release, int qid) async {
+  Future<void> _releaseQuestion(bool release, int qid, BuildContext context) async {
     String status;
     String nextStatus;
     status = release ? 'Freigegeben' : 'Nicht freigegeben';
     nextStatus = release ? 'releasedQuestions' : 'notReleasedQuestions';
     try {
-      DocumentSnapshot question = await Firestore.instance.collection('questionRepository').document(qid.toString()).get();
+      DocumentSnapshot question =
+          await Firestore.instance.collection('questionRepository').document(qid.toString()).get();
       await Firestore.instance.collection(nextStatus).getDocuments().then((myDocuments) async {
         FirebaseUser user = await FirebaseAuth.instance.currentUser();
+        DocumentSnapshot _user = await Firestore.instance.collection('users').document(user.uid).get();
         int lengthId = myDocuments.documents.length;
         List<String> answers = List.from(question['answers']);
         List<int> counterAnswers = List.from(question['counterAnswers']);
@@ -74,6 +85,7 @@ class _AdminConsolePageState extends State<AdminConsolePage> {
           'question': question.data['question'],
           'voting': question.data['voting'],
           'status': status,
+          'creator': _user.data['username'],
           'answers': FieldValue.arrayUnion(answers),
           'counterAnswers': counterAnswers,
         });
@@ -83,9 +95,11 @@ class _AdminConsolePageState extends State<AdminConsolePage> {
         Firestore.instance.collection('users').document(user.uid).updateData({
           'questionRepository': FieldValue.arrayRemove([qid.toString()]),
         });
-        setState(() async {
-          await Firestore.instance.collection('questionRepository').document(qid.toString()).delete();
-        });
+        if (release) {
+          await Firestore.instance.collection('users').document(user.uid).updateData({'xp': _user.data['xp'] + 25});
+        }
+        await Firestore.instance.collection('questionRepository').document(qid.toString()).delete();
+        setState(() {});
       });
     } catch (error) {
       print('RELEASE QUESTION ERROR: ' + error.toString());

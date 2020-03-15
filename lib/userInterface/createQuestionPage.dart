@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:opinion_app/helper/systemSettings.dart';
 import 'package:opinion_app/userInterface/opinionPage.dart';
 
 class CreateQuestionPage extends StatefulWidget {
@@ -20,6 +21,12 @@ class _CreateQuestionPageState extends State<CreateQuestionPage> {
     _answer1.dispose();
     _answer2.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    SystemSettings.allowOnlyPortraitOrientation();
+    super.initState();
   }
 
   @override
@@ -45,7 +52,7 @@ class _CreateQuestionPageState extends State<CreateQuestionPage> {
                       maxLines: null,
                       controller: _question,
                       validator: _validateQuestion,
-                      maxLength: 150,
+                      maxLength: 100,
                     ),
                     TextFormField(
                       decoration: const InputDecoration(
@@ -53,7 +60,7 @@ class _CreateQuestionPageState extends State<CreateQuestionPage> {
                       ),
                       controller: _answer1,
                       validator: _validateAnswers,
-                      maxLength: 50,
+                      maxLength: 40,
                     ),
                     TextFormField(
                       decoration: const InputDecoration(
@@ -61,7 +68,7 @@ class _CreateQuestionPageState extends State<CreateQuestionPage> {
                       ),
                       controller: _answer2,
                       validator: _validateAnswers,
-                      maxLength: 50,
+                      maxLength: 40,
                     ),
                     FlatButton(
                       child: Text('Erstellen'),
@@ -91,6 +98,8 @@ class _CreateQuestionPageState extends State<CreateQuestionPage> {
   String _validateAnswers(String answer) {
     if (answer.trim().isEmpty) {
       return 'Bitte geben sie eine Antwort ein.';
+    } else if (_answer1.text.toString().trim().compareTo(_answer2.text.toString().trim()) == 0) {
+      return 'Antworten müssen unterschiedlich sein.';
     } else {
       return null;
     }
@@ -108,12 +117,14 @@ class _CreateQuestionPageState extends State<CreateQuestionPage> {
 
         Firestore.instance.collection('questionRepository').getDocuments().then((myDocuments) async {
           FirebaseUser user = await FirebaseAuth.instance.currentUser();
+          DocumentSnapshot userData = await Firestore.instance.collection('users').document(user.uid).get();
           int qid = myDocuments.documents.length;
           Firestore.instance.collection('questionRepository').document(qid.toString()).setData({
             'qid': qid,
             'question': _question.text,
             'voting': 0,
             'status': 'Wird geprüft',
+            'creator': userData.data['username'],
             'answers': FieldValue.arrayUnion(answers),
             'counterAnswers': counterAnswers,
           });

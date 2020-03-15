@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:opinion_app/helper/systemSettings.dart';
 import 'package:opinion_app/userInterface/loginPage.dart';
 import 'package:opinion_app/userInterface/adminConsolePage.dart';
 
@@ -11,55 +12,65 @@ class ProfilPage extends StatefulWidget {
 
 class _ProfilPageState extends State<ProfilPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseUser firebaseUser;
   DocumentSnapshot user;
 
   @override
   void initState() {
+    SystemSettings.allowOnlyPortraitOrientation();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Color.fromRGBO(143, 148, 251, 0.9),
+        title: Text('Profil'),
+        centerTitle: true,
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.exit_to_app),
+            onPressed: () => _signOut(),
+            color: Colors.white,
+          )
+        ],
+      ),
       body: Container(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text(
-                'Profil',
-                style: TextStyle(fontSize: 22.0),
-              ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 12.0),
                 child: FutureBuilder(
                   future: _loadUserData(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData == false) {
-                      return CircularProgressIndicator();
+                      return Center(child: CircularProgressIndicator());
+                    } else if (snapshot.connectionState == ConnectionState.done) {
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text(user.data['email']),
+                          Text('Benutzername: ' + user.data['username']),
+                          Text('Erfahrungspunkte: ' + user.data['xp'].toString()),
+                          Visibility(
+                            visible: _isAdmin(),
+                            child: RaisedButton(
+                              onPressed: () => _toPage(context),
+                              child: Text(
+                                'Admin Konsole',
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
                     }
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(user.data['email']),
-                        Text('Benutzername: ' + user.data['username']),
-                        Text('Erfahrungspunkte: ' + user.data['xp'].toString()),
-                      ],
-                    );
+                    return Center(child: CircularProgressIndicator());
                   },
-                ),
-              ),
-              RaisedButton(
-                onPressed: () => _signOut(),
-                child: Text(
-                  'Ausloggen',
-                ),
-              ),
-              RaisedButton(
-                onPressed: () => _toPage(context),
-                child: Text(
-                  'Admin Konsole',
                 ),
               ),
             ],
@@ -70,9 +81,16 @@ class _ProfilPageState extends State<ProfilPage> {
   }
 
   Future<DocumentSnapshot> _loadUserData() async {
-    FirebaseUser currentUser = await _auth.currentUser();
-    user = await Firestore.instance.collection('users').document(currentUser.uid).get();
+    firebaseUser = await _auth.currentUser();
+    user = await Firestore.instance.collection('users').document(firebaseUser.uid).get();
     return user;
+  }
+
+  bool _isAdmin() {
+    if (firebaseUser.email == "marcel.geirhos@gmail.com") {
+      return true;
+    }
+    return false;
   }
 
   void _signOut() async {

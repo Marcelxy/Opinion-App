@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:opinion_app/models/question.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:opinion_app/helper/systemSettings.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 class QuestionPage extends StatefulWidget {
@@ -15,8 +17,8 @@ class _QuestionPageState extends State<QuestionPage> {
   bool _loadNextQuestion;
   bool _isEvaluateButtonEnabled;
   int _randomSelectedQuestion;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  DocumentSnapshot user;
+  FirebaseUser firebaseUser;
+  DocumentSnapshot userSnapshot;
   DocumentSnapshot questionSnapshot;
   List<int> counterAnswers;
   Question question;
@@ -27,6 +29,7 @@ class _QuestionPageState extends State<QuestionPage> {
     _loadNextQuestion = true;
     _isEvaluateButtonEnabled = true;
     _randomSelectedQuestion = 0;
+    SystemSettings.allowOnlyPortraitOrientation();
     super.initState();
   }
 
@@ -44,28 +47,43 @@ class _QuestionPageState extends State<QuestionPage> {
                   future: _loadUserData(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData == false) {
-                      return CircularProgressIndicator();
+                      return Center(child: CircularProgressIndicator());
                     } else if (snapshot.connectionState == ConnectionState.done) {
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 12.0),
-                            child: Text(
-                              user.data['username'],
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 16.0),
+                      return FittedBox(
+                        child: Row(
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.only(left: 20.0),
+                              child: Icon(
+                                Icons.person,
+                                color: Colors.blue.shade600,
+                              ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Text(
-                              'Erfahrungspunkte: ' + user.data['xp'].toString(),
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 16.0),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 6.0, right: 32.0, top: 14.0, bottom: 14.0),
+                              child: Text(
+                                userSnapshot.data['username'],
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 14.0),
+                              ),
                             ),
-                          ),
-                        ],
+                            Padding(
+                              padding: const EdgeInsets.only(right: 6.0),
+                              child: Icon(
+                                Icons.new_releases,
+                                color: Colors.blue.shade600,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 12.0),
+                              child: Text(
+                                'Erfahrungspunkte: ' + userSnapshot.data['xp'].toString(),
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 14.0),
+                              ),
+                            ),
+                          ],
+                        ),
                       );
                     }
                     return CircularProgressIndicator();
@@ -95,19 +113,31 @@ class _QuestionPageState extends State<QuestionPage> {
                           builder: (context, snapshot) {
                             if (snapshot.hasData == false) {
                               return CircularProgressIndicator();
-                            } else {
+                            } else if (snapshot.connectionState == ConnectionState.done) {
                               if (_showResults == false) {
                                 return Visibility(
                                   visible: _showResults ? false : true,
                                   child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
+                                      Align(
+                                        alignment: Alignment.topLeft,
+                                        child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(8.0, 0.0, 0.0, 0.0),
+                                          child: Text(
+                                            'Frage wurde gestellt von:\n' + question.creator,
+                                            style: TextStyle(color: Colors.white),
+                                          ),
+                                        ),
+                                      ),
+                                      Divider(color: Colors.white),
                                       Padding(
-                                        padding: const EdgeInsets.only(bottom: 24.0),
-                                        child: Text(
+                                        padding: const EdgeInsets.fromLTRB(8.0, 70.0, 0.0, 24.0),
+                                        child: AutoSizeText(
                                           question.question,
                                           textAlign: TextAlign.center,
                                           style: TextStyle(fontSize: 24.0, color: Colors.white),
+                                          minFontSize: 10.0,
+                                          maxLines: 5,
                                         ),
                                       ),
                                       Padding(
@@ -116,7 +146,7 @@ class _QuestionPageState extends State<QuestionPage> {
                                           children: <Widget>[
                                             Text('Bewerte diese Frage', style: TextStyle(color: Colors.white70)),
                                             Padding(
-                                              padding: const EdgeInsets.only(left: 50.0),
+                                              padding: const EdgeInsets.only(left: 40.0),
                                               child: IconButton(
                                                 icon: Icon(Icons.thumb_up, color: Colors.white70),
                                                 onPressed: () => _isEvaluateButtonEnabled ? _setVoting(true) : null,
@@ -137,7 +167,7 @@ class _QuestionPageState extends State<QuestionPage> {
                                           width: 270.0,
                                           height: 40.0,
                                           child: RaisedButton(
-                                            onPressed: () => _incrementCounterAnswer(1),
+                                            onPressed: () => _showQuestionResults(1),
                                             shape: RoundedRectangleBorder(
                                               borderRadius: new BorderRadius.circular(6.0),
                                             ),
@@ -154,7 +184,7 @@ class _QuestionPageState extends State<QuestionPage> {
                                           width: 270.0,
                                           height: 40.0,
                                           child: RaisedButton(
-                                            onPressed: () => _incrementCounterAnswer(2),
+                                            onPressed: () => _showQuestionResults(2),
                                             shape: RoundedRectangleBorder(
                                               borderRadius: new BorderRadius.circular(6.0),
                                             ),
@@ -175,12 +205,14 @@ class _QuestionPageState extends State<QuestionPage> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: <Widget>[
-                                      Center(
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(bottom: 30.0),
-                                          child: Text(question.question,
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(fontSize: 24.0, color: Colors.white)),
+                                      Padding(
+                                        padding: const EdgeInsets.only(bottom: 30.0),
+                                        child: AutoSizeText(
+                                          question.question,
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(fontSize: 24.0, color: Colors.white),
+                                          minFontSize: 10.0,
+                                          maxLines: 5,
                                         ),
                                       ),
                                       Padding(
@@ -259,6 +291,7 @@ class _QuestionPageState extends State<QuestionPage> {
                                 );
                               }
                             }
+                            return Center(child: CircularProgressIndicator());
                           },
                         ),
                       ),
@@ -274,9 +307,10 @@ class _QuestionPageState extends State<QuestionPage> {
   }
 
   Future<DocumentSnapshot> _loadUserData() async {
-    FirebaseUser currentUser = await _auth.currentUser();
-    user = await Firestore.instance.collection('users').document(currentUser.uid).get();
-    return user;
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    firebaseUser = await auth.currentUser();
+    userSnapshot = await Firestore.instance.collection('users').document(firebaseUser.uid).get();
+    return userSnapshot;
   }
 
   Future<DocumentSnapshot> _loadQuestionData() async {
@@ -297,6 +331,7 @@ class _QuestionPageState extends State<QuestionPage> {
           questionSnapshot.data['question'],
           answers,
           counterAnswers,
+          questionSnapshot.data['creator'],
           questionSnapshot.data['status'],
           questionSnapshot.data['voting'],
         );
@@ -316,32 +351,55 @@ class _QuestionPageState extends State<QuestionPage> {
     });
   }
 
-  Future<void> _incrementCounterAnswer(int answer) async {
-    if (answer == 1) {
-      question.counterAnswer[0]++;
-    } else if (answer == 2) {
-      question.counterAnswer[1]++;
+  _showQuestionResults(int answer) async {
+    try {
+      _increaseUserXp(2);
+      if (answer == 1) {
+        question.counterAnswer[0]++;
+      } else if (answer == 2) {
+        question.counterAnswer[1]++;
+      }
+      Firestore.instance.collection('releasedQuestions').document(_randomSelectedQuestion.toString()).updateData({
+        'counterAnswers': counterAnswers,
+      });
+      questionSnapshot =
+          await Firestore.instance.collection('releasedQuestions').document(_randomSelectedQuestion.toString()).get();
+      setState(() {
+        _showResults = true;
+      });
+    } catch (error) {
+      print('SHOW QUESTION RESULTS ERROR: ' + error);
+      Scaffold.of(context).showSnackBar(SnackBar(
+        content: const Text('Frage Ergebnisse konnten nicht geladen werden. Bitte erneut versuchen.'),
+      ));
     }
-    Firestore.instance.collection('releasedQuestions').document(_randomSelectedQuestion.toString()).updateData({
-      'counterAnswers': counterAnswers,
-    });
-    questionSnapshot =
-        await Firestore.instance.collection('releasedQuestions').document(_randomSelectedQuestion.toString()).get();
-    setState(() {
-      _showResults = true;
-    });
   }
 
-  Future<void> _setVoting(bool thumpUp) async {
-    thumpUp ? question.voting++ : question.voting--;
+  _setVoting(bool thumpUp) async {
+    try {
+      _increaseUserXp(1);
+      thumpUp ? question.voting++ : question.voting--;
+      await Firestore.instance
+          .collection('releasedQuestions')
+          .document(_randomSelectedQuestion.toString())
+          .updateData({'voting': question.voting});
+      questionSnapshot =
+          await Firestore.instance.collection('releasedQuestions').document(_randomSelectedQuestion.toString()).get();
+      setState(() {
+        _isEvaluateButtonEnabled = false;
+      });
+    } catch (error) {
+      print('SET VOTING ERROR: ' + error);
+      Scaffold.of(context).showSnackBar(SnackBar(
+        content: const Text('Frage Voting konnte nicht erhöht/erniedrigt werden. Bitte erneut versuchen.'),
+      ));
+    }
+  }
+
+  _increaseUserXp(int xp) async {
     await Firestore.instance
-        .collection('releasedQuestions')
-        .document(_randomSelectedQuestion.toString())
-        .updateData({'voting': question.voting});
-    questionSnapshot =
-        await Firestore.instance.collection('releasedQuestions').document(_randomSelectedQuestion.toString()).get();
-    setState(() {
-      _isEvaluateButtonEnabled = false;
-    });
+        .collection('users')
+        .document(firebaseUser.uid)
+        .updateData({'xp': userSnapshot.data['xp'] + xp});
   }
 }

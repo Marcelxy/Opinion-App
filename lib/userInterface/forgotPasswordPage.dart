@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:progress_dialog/progress_dialog.dart';
+import 'package:opinion_app/helper/systemSettings.dart';
 import 'package:opinion_app/userInterface/loginPage.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
@@ -24,6 +25,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   void initState() {
     _progressDialog = new ProgressDialog(context);
     _progressDialog.style(message: 'E-Mail senden...');
+    SystemSettings.allowOnlyPortraitOrientation();
     super.initState();
   }
 

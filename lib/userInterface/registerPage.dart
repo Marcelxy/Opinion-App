@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:opinion_app/models/user.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:progress_dialog/progress_dialog.dart';
+import 'package:opinion_app/helper/systemSettings.dart';
 import 'package:opinion_app/userInterface/loginPage.dart';
 import 'package:opinion_app/animations/fadeAnimation.dart';
 import 'package:opinion_app/userInterface/opinionPage.dart';
@@ -35,8 +35,9 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   void initState() {
     _obscurePassword = false;
-    _progressDialog = new ProgressDialog(context);
+    _progressDialog = ProgressDialog(context);
     _progressDialog.style(message: 'Registrierung...');
+    SystemSettings.allowOnlyPortraitOrientation();
     super.initState();
   }
 
@@ -153,7 +154,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   keyboardType: TextInputType.text,
                                   controller: _username,
                                   validator: _validateUsername,
-                                  maxLength: 30,
+                                  maxLength: 20,
                                 ),
                               ),
                               Container(
@@ -290,7 +291,7 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  Future<void> _register(BuildContext context) async {
+  _register(BuildContext context) async {
     bool registerSuccessful = false;
     String errorMessage;
     var internetConnectivity = await (Connectivity().checkConnectivity());
@@ -325,22 +326,24 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  Future<void> _createUserInCloudFirestore(FirebaseUser user) async {
+  _createUserInCloudFirestore(FirebaseUser user) async {
     try {
       final userSnapshot = await Firestore.instance.collection('users').document(user.uid).get();
       if (userSnapshot == null || !userSnapshot.exists) {
-        String username = _username.text.toString();
-        int xp = 0;
-        Firestore.instance
-            .collection('users')
-            .document(user.uid)
-            .setData({'email': user.email, 'username': username, 'xp': xp});
-        User(user.email, username, xp);
+        Firestore.instance.collection('users').document(user.uid).setData({
+          'email': user.email,
+          'username': _username.text.toString(),
+          'xp': 0,
+          'questionRepository': {},
+          'releasedQuestions': {},
+          'notReleasedQuestions': {},
+          'completedQuestions': {}
+        });
       }
     } catch (error) {
-      print('CREATE USER ERROR: ' + error);
+      print('CREATE USER IN CLOUD FIRESTORE ERROR: ' + error.toString());
       Scaffold.of(context).showSnackBar(SnackBar(
-        content: const Text('Registrierung fehlgeschlagen. Bitte erneut versuchen.'),
+        content: const Text('Benutzer Registrierung fehlgeschlagen. Bitte erneut versuchen.'),
       ));
     }
   }

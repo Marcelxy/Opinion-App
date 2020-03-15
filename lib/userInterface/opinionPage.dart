@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:opinion_app/helper/systemSettings.dart';
 import 'package:opinion_app/userInterface/profilPage.dart';
 import 'package:opinion_app/userInterface/questionPage.dart';
 import 'package:opinion_app/userInterface/ownQuestionPage.dart';
@@ -9,7 +10,7 @@ class OpinionPage extends StatefulWidget {
 }
 
 class _OpinionPageState extends State<OpinionPage> {
-  int currentPageNumber = 0;
+  int currentPageNumber;
   final List<Widget> pages = [
     QuestionPage(),
     OwnQuestionPage(),
@@ -17,6 +18,13 @@ class _OpinionPageState extends State<OpinionPage> {
   ];
   Widget currentPage = QuestionPage();
   final PageStorageBucket bucket = PageStorageBucket();
+
+  @override
+  void initState() {
+    currentPageNumber = 0;
+    SystemSettings.allowOnlyPortraitOrientation();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
