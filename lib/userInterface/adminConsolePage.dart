@@ -88,6 +88,8 @@ class _AdminConsolePageState extends State<AdminConsolePage> {
           'creator': _user.data['username'],
           'answers': FieldValue.arrayUnion(answers),
           'counterAnswers': counterAnswers,
+          'created': FieldValue.serverTimestamp(),
+          'restDuration': 7,
         });
         Firestore.instance.collection('users').document(user.uid).updateData({
           nextStatus: FieldValue.arrayUnion([lengthId.toString()]),

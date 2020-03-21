@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:opinion_app/helper/systemSettings.dart';
 import 'package:opinion_app/userInterface/createQuestionPage.dart';
+import 'package:opinion_app/widgets/percentProgressBarWidget.dart';
 
 class OwnQuestionPage extends StatefulWidget {
   @override
@@ -53,7 +54,9 @@ class _OwnQuestionPageState extends State<OwnQuestionPage> {
                         onSelected: (bool selected) {
                           setState(
                             () {
-                              _value = selected ? index : null;
+                              if (_value != index) {
+                                _value = selected ? index : null;
+                              }
                             },
                           );
                         },
@@ -77,7 +80,7 @@ class _OwnQuestionPageState extends State<OwnQuestionPage> {
                   } else if (snapshot.connectionState == ConnectionState.done && _ownQuestionList.isNotEmpty) {
                     return Container(
                       color: Colors.white,
-                      child: ListWheelScrollView(itemExtent: 300, diameterRatio: 6.0, children: <Widget>[
+                      child: ListWheelScrollView(itemExtent: 400, diameterRatio: 6.0, children: <Widget>[
                         ..._ownQuestionList.map((Question question) {
                           return Container(
                             margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
@@ -95,9 +98,10 @@ class _OwnQuestionPageState extends State<OwnQuestionPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Padding(
-                                  padding: const EdgeInsets.only(bottom: 8.0),
-                                  child: Text(question.question, style: TextStyle(color: Colors.white70)),
+                                  padding: const EdgeInsets.only(bottom: 4.0),
+                                  child: Text('Frage: ' + question.question, style: TextStyle(color: Colors.white, fontSize: 16.0)),
                                 ),
+                                Divider(color: Colors.white),
                                 Row(
                                   children: <Widget>[
                                     Icon(
@@ -112,23 +116,23 @@ class _OwnQuestionPageState extends State<OwnQuestionPage> {
                                   ],
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.only(bottom: 8.0),
+                                  padding: const EdgeInsets.only(top: 12.0, bottom: 8.0),
                                   child: Text(
                                       question
                                               .calculateOverallAnswerValue(
                                                   question.counterAnswer[0], question.counterAnswer[1])
                                               .toString() +
                                           ' Antworten insgesamt',
-                                      style: TextStyle(color: Colors.white70)),
+                                      style: TextStyle(color: Colors.white)),
                                 ),
-                                Text(question.answers[0], style: TextStyle(color: Colors.white70)),
-                                Text(question.counterAnswer[0].toString(), style: TextStyle(color: Colors.white70)),
-                                Text(question.calculatePercentValue(1, true).toStringAsFixed(1) + '%',
-                                    style: TextStyle(color: Colors.white70)),
-                                Text(question.answers[1], style: TextStyle(color: Colors.white70)),
-                                Text(question.counterAnswer[1].toString(), style: TextStyle(color: Colors.white70)),
-                                Text(question.calculatePercentValue(2, true).toStringAsFixed(1) + '%',
-                                    style: TextStyle(color: Colors.white70)),
+                                Text(question.answers[0], style: TextStyle(color: Colors.white)),
+                                PercentProgressBarWidget(
+                                    percentValue: question.calculatePercentValue(1, false),
+                                    percentTextValue: question.calculatePercentValue(1, true)),
+                                Text(question.answers[1], style: TextStyle(color: Colors.white)),
+                                PercentProgressBarWidget(
+                                    percentValue: question.calculatePercentValue(2, false),
+                                    percentTextValue: question.calculatePercentValue(2, true)),
                               ],
                             ),
                           );

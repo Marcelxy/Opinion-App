@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:opinion_app/helper/systemSettings.dart';
+import 'package:opinion_app/widgets/creatorWidget.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 class QuestionPage extends StatefulWidget {
@@ -119,15 +120,17 @@ class _QuestionPageState extends State<QuestionPage> {
                                   visible: _showResults ? false : true,
                                   child: Column(
                                     children: <Widget>[
-                                      Align(
-                                        alignment: Alignment.topLeft,
-                                        child: Padding(
-                                          padding: const EdgeInsets.fromLTRB(8.0, 0.0, 0.0, 0.0),
-                                          child: Text(
-                                            'Frage wurde gestellt von:\n' + question.creator,
-                                            style: TextStyle(color: Colors.white),
+                                      Row(
+                                        children: <Widget>[
+                                          CreatorWidget(creator: question.creator),
+                                          Padding(
+                                            padding: const EdgeInsets.only(left: 75.0),
+                                            child: IconButton(
+                                              icon: Icon(Icons.arrow_forward, color: Colors.white),
+                                              onPressed: () => _setNextQuestion(),
+                                            ),
                                           ),
-                                        ),
+                                        ],
                                       ),
                                       Divider(color: Colors.white),
                                       Padding(
@@ -202,14 +205,15 @@ class _QuestionPageState extends State<QuestionPage> {
                                 return Visibility(
                                   visible: _showResults ? true : false,
                                   child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: <Widget>[
+                                      CreatorWidget(creator: question.creator),
+                                      Divider(color: Colors.white),
                                       Padding(
-                                        padding: const EdgeInsets.only(bottom: 30.0),
+                                        padding: const EdgeInsets.fromLTRB(16.0, 70.0, 0.0, 24.0),
                                         child: AutoSizeText(
-                                          question.question,
-                                          textAlign: TextAlign.center,
+                                          'Frage: ' + question.question,
+                                          textAlign: TextAlign.left,
                                           style: TextStyle(fontSize: 24.0, color: Colors.white),
                                           minFontSize: 10.0,
                                           maxLines: 5,

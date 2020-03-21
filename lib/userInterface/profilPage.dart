@@ -29,53 +29,100 @@ class _ProfilPageState extends State<ProfilPage> {
         backgroundColor: Color.fromRGBO(143, 148, 251, 0.9),
         title: Text('Profil'),
         centerTitle: true,
+        leading: FutureBuilder(
+            future: _loadUserData(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData == false) {
+                return Text('');
+              } else if (snapshot.connectionState == ConnectionState.done) {
+                return Visibility(
+                  visible: _isAdmin(),
+                  child: IconButton(
+                    icon: const Icon(Icons.public),
+                    onPressed: () => _toPage(context),
+                    color: Colors.white,
+                  ),
+                );
+              }
+              return Text('');
+            }),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.exit_to_app),
             onPressed: () => _signOut(),
             color: Colors.white,
-          )
+          ),
         ],
       ),
-      body: Container(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12.0),
-                child: FutureBuilder(
-                  future: _loadUserData(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData == false) {
-                      return Center(child: CircularProgressIndicator());
-                    } else if (snapshot.connectionState == ConnectionState.done) {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Text(user.data['email']),
-                          Text('Benutzername: ' + user.data['username']),
-                          Text('Erfahrungspunkte: ' + user.data['xp'].toString()),
-                          Visibility(
-                            visible: _isAdmin(),
-                            child: RaisedButton(
-                              onPressed: () => _toPage(context),
-                              child: Text(
-                                'Admin Konsole',
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    }
-                    return Center(child: CircularProgressIndicator());
-                  },
-                ),
+      body: Column(
+        children: <Widget>[
+          Container(
+            height: 250,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color.fromRGBO(143, 148, 251, 0.9), Colors.blue.shade400],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
-            ],
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(75.0),
+                bottomRight: Radius.circular(10.0),
+              ),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12.0),
+                    child: FutureBuilder(
+                      future: _loadUserData(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData == false) {
+                          return Center(child: CircularProgressIndicator());
+                        } else if (snapshot.connectionState == ConnectionState.done) {
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                child: Text(
+                                  'E-Mail: ' + user.data['email'],
+                                  style: TextStyle(fontSize: 16.0, color: Colors.white),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                child: Text(
+                                  'Benutzername: ' + user.data['username'],
+                                  style: TextStyle(fontSize: 16.0, color: Colors.white),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                child: Text(
+                                  'Erfahrungspunkte: ' + user.data['xp'].toString(),
+                                  style: TextStyle(fontSize: 16.0, color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+                        return Center(child: CircularProgressIndicator());
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
+          Container(
+              height: 300,
+              child: Center(
+                child: Text('Rangliste ist noch in Entwicklung.'),
+              ))
+        ],
       ),
     );
   }
