@@ -23,6 +23,7 @@ class _QuestionPageState extends State<QuestionPage> {
   DocumentSnapshot questionSnapshot;
   List<int> counterAnswers;
   Question question;
+  List<DocumentSnapshot> questionsList;
 
   @override
   void initState() {
@@ -122,7 +123,7 @@ class _QuestionPageState extends State<QuestionPage> {
                                     children: <Widget>[
                                       Row(
                                         children: <Widget>[
-                                          CreatorWidget(creator: question.creator),
+                                          CreatorWidget(creatorUsername: question.creatorUsername),
                                           Padding(
                                             padding: const EdgeInsets.only(left: 75.0),
                                             child: IconButton(
@@ -207,7 +208,7 @@ class _QuestionPageState extends State<QuestionPage> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: <Widget>[
-                                      CreatorWidget(creator: question.creator),
+                                      CreatorWidget(creatorUsername: question.creatorUsername),
                                       Divider(color: Colors.white),
                                       Padding(
                                         padding: const EdgeInsets.fromLTRB(16.0, 70.0, 0.0, 24.0),
@@ -320,22 +321,21 @@ class _QuestionPageState extends State<QuestionPage> {
   Future<DocumentSnapshot> _loadQuestionData() async {
     try {
       if (_loadNextQuestion) {
-        QuerySnapshot questions = await Firestore.instance.collection('releasedQuestions').getDocuments();
         _showResults = false;
         _loadNextQuestion = false;
         _isEvaluateButtonEnabled = true;
-        int qid = questions.documents.length;
+        QuerySnapshot releasedQuestions = await Firestore.instance.collection('releasedQuestions').getDocuments();
+        questionsList = releasedQuestions.documents;
         var random = new Random();
-        _randomSelectedQuestion = random.nextInt(qid);
-        questionSnapshot =
-            await Firestore.instance.collection('releasedQuestions').document(_randomSelectedQuestion.toString()).get();
+        _randomSelectedQuestion = random.nextInt(questionsList.length);
+        questionSnapshot = await Firestore.instance.collection('releasedQuestions').document(questionsList[_randomSelectedQuestion].documentID).get();
         List<String> answers = List.from(questionSnapshot.data['answers']);
         counterAnswers = List.from(questionSnapshot.data['counterAnswers']);
         question = new Question(
           questionSnapshot.data['question'],
           answers,
           counterAnswers,
-          questionSnapshot.data['creator'],
+          questionSnapshot.data['creatorUsername'],
           questionSnapshot.data['status'],
           questionSnapshot.data['voting'],
         );
@@ -363,11 +363,11 @@ class _QuestionPageState extends State<QuestionPage> {
       } else if (answer == 2) {
         question.counterAnswer[1]++;
       }
-      Firestore.instance.collection('releasedQuestions').document(_randomSelectedQuestion.toString()).updateData({
+      Firestore.instance.collection('releasedQuestions').document(questionsList[_randomSelectedQuestion].documentID).updateData({
         'counterAnswers': counterAnswers,
       });
       questionSnapshot =
-          await Firestore.instance.collection('releasedQuestions').document(_randomSelectedQuestion.toString()).get();
+          await Firestore.instance.collection('releasedQuestions').document(questionsList[_randomSelectedQuestion].documentID).get();
       setState(() {
         _showResults = true;
       });
@@ -385,15 +385,15 @@ class _QuestionPageState extends State<QuestionPage> {
       thumpUp ? question.voting++ : question.voting--;
       await Firestore.instance
           .collection('releasedQuestions')
-          .document(_randomSelectedQuestion.toString())
+          .document(questionsList[_randomSelectedQuestion].documentID)
           .updateData({'voting': question.voting});
       questionSnapshot =
-          await Firestore.instance.collection('releasedQuestions').document(_randomSelectedQuestion.toString()).get();
+          await Firestore.instance.collection('releasedQuestions').document(questionsList[_randomSelectedQuestion].documentID).get();
       setState(() {
         _isEvaluateButtonEnabled = false;
       });
     } catch (error) {
-      print('SET VOTING ERROR: ' + error);
+      print('SET VOTING ERROR: ' + error.toString());
       Scaffold.of(context).showSnackBar(SnackBar(
         content: const Text('Frage Voting konnte nicht erhöht/erniedrigt werden. Bitte erneut versuchen.'),
       ));

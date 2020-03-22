@@ -44,13 +44,13 @@ class _AdminConsolePageState extends State<AdminConsolePage> {
                               padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
                               child: Builder(builder: (BuildContext context) {
                                 return RaisedButton(
-                                  onPressed: () => _releaseQuestion(true, questions.elementAt(index).data['qid'], context),
+                                  onPressed: () => _releaseQuestion(true, questions.elementAt(index).data['qid'].toString(), context),
                                   child: Text('Freigeben'),
                                 );
                               }),
                             ),
                             RaisedButton(
-                              onPressed: () => _releaseQuestion(false, questions.elementAt(index).data['qid'], context),
+                              onPressed: () => _releaseQuestion(false, questions.elementAt(index).data['qid'].toString(), context),
                               child: Text('Nicht freigeben'),
                             ),
                           ],
@@ -66,36 +66,36 @@ class _AdminConsolePageState extends State<AdminConsolePage> {
     );
   }
 
-  Future<void> _releaseQuestion(bool release, int qid, BuildContext context) async {
+  Future<void> _releaseQuestion(bool release, String qid, BuildContext context) async {
     String status;
     String nextStatus;
     status = release ? 'Freigegeben' : 'Nicht freigegeben';
     nextStatus = release ? 'releasedQuestions' : 'notReleasedQuestions';
     try {
       DocumentSnapshot question =
-          await Firestore.instance.collection('questionRepository').document(qid.toString()).get();
+          await Firestore.instance.collection('questionRepository').document(qid).get();
       await Firestore.instance.collection(nextStatus).getDocuments().then((myDocuments) async {
         FirebaseUser user = await FirebaseAuth.instance.currentUser();
         DocumentSnapshot _user = await Firestore.instance.collection('users').document(user.uid).get();
-        int lengthId = myDocuments.documents.length;
         List<String> answers = List.from(question['answers']);
         List<int> counterAnswers = List.from(question['counterAnswers']);
-        await Firestore.instance.collection(nextStatus).document(lengthId.toString()).setData({
-          'qid': lengthId,
+        await Firestore.instance.collection(nextStatus).document(qid).setData({
+          'qid': qid,
           'question': question.data['question'],
           'voting': question.data['voting'],
           'status': status,
-          'creator': _user.data['username'],
+          'creatorId': user.uid,
+          'creatorUsername': _user.data['username'],
           'answers': FieldValue.arrayUnion(answers),
           'counterAnswers': counterAnswers,
           'created': FieldValue.serverTimestamp(),
-          'restDuration': 7,
+          'durationInDays': question.data['durationInDays'],
         });
         Firestore.instance.collection('users').document(user.uid).updateData({
-          nextStatus: FieldValue.arrayUnion([lengthId.toString()]),
+          nextStatus: FieldValue.arrayUnion([qid]),
         });
         Firestore.instance.collection('users').document(user.uid).updateData({
-          'questionRepository': FieldValue.arrayRemove([qid.toString()]),
+          'questionRepository': FieldValue.arrayRemove([qid]),
         });
         if (release) {
           await Firestore.instance.collection('users').document(user.uid).updateData({'xp': _user.data['xp'] + 25});

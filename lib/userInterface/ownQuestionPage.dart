@@ -202,7 +202,7 @@ class _OwnQuestionPageState extends State<OwnQuestionPage> {
         questionSnapshot.data['question'],
         answers,
         counterAnswers,
-        questionSnapshot.data['username'],
+        questionSnapshot.data['creatorUsername'],
         questionSnapshot.data['status'],
         questionSnapshot.data['voting'],
       );
