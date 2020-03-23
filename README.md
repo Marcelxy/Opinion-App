@@ -1,6 +1,15 @@
-# opinion_app
+# Opinion-App
 
-Opinion App.
+## Description
+
+A app to communicate our various opinions.
+
+## Functionality
+
+- Users can register and sign-in with his/her e-mail address and password.
+- Users can reset his/her password.
+- Users can sign-out.
+- 
 
 ## Getting Started
 
