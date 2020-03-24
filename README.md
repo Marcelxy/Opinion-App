@@ -26,3 +26,5 @@ A app to communicate our various opinions.
 - Google Cloud Plattform
   - Cloud Scheduler
   - Cloud Functions
+
+![Register Screen](https://github.com/Marcelxy/Opinion-App/blob/master/assets/images/Screenshots/registerScreen.png)
