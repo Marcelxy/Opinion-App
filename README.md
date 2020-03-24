@@ -27,4 +27,4 @@ A app to communicate our various opinions.
   - Cloud Scheduler
   - Cloud Functions
 
-<img src="https://github.com/Marcelxy/Opinion-App/blob/master/assets/images/Screenshots/registerScreen.png" width="480" height="640">
+<img src="https://github.com/Marcelxy/Opinion-App/blob/master/assets/images/Screenshots/registerScreen.png" width="560" height="960">
