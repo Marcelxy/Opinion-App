@@ -28,3 +28,4 @@ A app to communicate our various opinions.
   - Cloud Functions
 
 ![Register Screen](https://github.com/Marcelxy/Opinion-App/blob/master/assets/images/Screenshots/registerScreen.png) {:height="700px" width="400px"}
+<img src="https://github.com/Marcelxy/Opinion-App/blob/master/assets/images/Screenshots/registerScreen.png" width="48">
