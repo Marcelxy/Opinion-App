@@ -27,4 +27,10 @@ A app to communicate our various opinions.
   - Cloud Scheduler
   - Cloud Functions
 
+## Screens
+
 <img src="https://github.com/Marcelxy/Opinion-App/blob/master/assets/images/Screenshots/registerScreen.png" width="280" height="480">
+
+<img src="https://github.com/Marcelxy/Opinion-App/blob/master/assets/images/Screenshots/loginScreen.png" width="280" height="480">
+
+<img src="https://github.com/Marcelxy/Opinion-App/blob/master/assets/images/Screenshots/resetPasswordScreen.png" width="280" height="480">
