@@ -9,7 +9,7 @@ A app to communicate our various opinions.
 - Users can register and sign-in with his/her e-mail address and password.
 - Users can reset his/her password.
 - Users can sign-out.
-- Users can create own Questions to the community.
+- Users can create own Questions for the community.
 - Users can answer and vote questions from other users.
 - Users can see his/her own questions and filter this.
 - Users can see his/her own profile.
