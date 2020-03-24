@@ -23,7 +23,7 @@ class _QuestionPageState extends State<QuestionPage> {
   DocumentSnapshot questionSnapshot;
   List<int> counterAnswers;
   Question question;
-  List<DocumentSnapshot> questionsList;
+  List<DocumentSnapshot> _questionList;
 
   @override
   void initState() {
@@ -115,7 +115,7 @@ class _QuestionPageState extends State<QuestionPage> {
                           builder: (context, snapshot) {
                             if (snapshot.hasData == false) {
                               return CircularProgressIndicator();
-                            } else if (snapshot.connectionState == ConnectionState.done) {
+                            } else if (snapshot.connectionState == ConnectionState.done && _questionList.isNotEmpty) {
                               if (_showResults == false) {
                                 return Visibility(
                                   visible: _showResults ? false : true,
@@ -295,6 +295,20 @@ class _QuestionPageState extends State<QuestionPage> {
                                   ),
                                 );
                               }
+                            } else if (snapshot.connectionState == ConnectionState.done && _questionList.isEmpty) {
+                              return Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                                  child: Text(
+                                    'Aktuell sind keine Fragen vorhanden. Erstell du eine neue Frage und lass sie von der Community beantworten.',
+                                    style: TextStyle(
+                                      fontSize: 20.0,
+                                      color: Color.fromRGBO(143, 148, 251, 1),
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              );
                             }
                             return Center(child: CircularProgressIndicator());
                           },
@@ -325,10 +339,13 @@ class _QuestionPageState extends State<QuestionPage> {
         _loadNextQuestion = false;
         _isEvaluateButtonEnabled = true;
         QuerySnapshot releasedQuestions = await Firestore.instance.collection('releasedQuestions').getDocuments();
-        questionsList = releasedQuestions.documents;
+        _questionList = releasedQuestions.documents;
         var random = new Random();
-        _randomSelectedQuestion = random.nextInt(questionsList.length);
-        questionSnapshot = await Firestore.instance.collection('releasedQuestions').document(questionsList[_randomSelectedQuestion].documentID).get();
+        _randomSelectedQuestion = random.nextInt(_questionList.length);
+        questionSnapshot = await Firestore.instance
+            .collection('releasedQuestions')
+            .document(_questionList[_randomSelectedQuestion].documentID)
+            .get();
         List<String> answers = List.from(questionSnapshot.data['answers']);
         counterAnswers = List.from(questionSnapshot.data['counterAnswers']);
         question = new Question(
@@ -363,11 +380,16 @@ class _QuestionPageState extends State<QuestionPage> {
       } else if (answer == 2) {
         question.counterAnswer[1]++;
       }
-      Firestore.instance.collection('releasedQuestions').document(questionsList[_randomSelectedQuestion].documentID).updateData({
+      Firestore.instance
+          .collection('releasedQuestions')
+          .document(_questionList[_randomSelectedQuestion].documentID)
+          .updateData({
         'counterAnswers': counterAnswers,
       });
-      questionSnapshot =
-          await Firestore.instance.collection('releasedQuestions').document(questionsList[_randomSelectedQuestion].documentID).get();
+      questionSnapshot = await Firestore.instance
+          .collection('releasedQuestions')
+          .document(_questionList[_randomSelectedQuestion].documentID)
+          .get();
       setState(() {
         _showResults = true;
       });
@@ -385,10 +407,12 @@ class _QuestionPageState extends State<QuestionPage> {
       thumpUp ? question.voting++ : question.voting--;
       await Firestore.instance
           .collection('releasedQuestions')
-          .document(questionsList[_randomSelectedQuestion].documentID)
+          .document(_questionList[_randomSelectedQuestion].documentID)
           .updateData({'voting': question.voting});
-      questionSnapshot =
-          await Firestore.instance.collection('releasedQuestions').document(questionsList[_randomSelectedQuestion].documentID).get();
+      questionSnapshot = await Firestore.instance
+          .collection('releasedQuestions')
+          .document(_questionList[_randomSelectedQuestion].documentID)
+          .get();
       setState(() {
         _isEvaluateButtonEnabled = false;
       });

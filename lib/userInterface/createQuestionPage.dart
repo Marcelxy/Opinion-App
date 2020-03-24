@@ -33,83 +33,122 @@ class _CreateQuestionPageState extends State<CreateQuestionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
-      body: Stack(
-        children: <Widget>[
-          Center(
-            child: Form(
-              key: _addQuestionFormKey,
-              child: Padding(
-                padding: const EdgeInsets.all(32.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    TextFormField(
-                      decoration: const InputDecoration(
-                        hintText: 'Fragetext',
-                      ),
-                      keyboardType: TextInputType.multiline,
-                      maxLines: null,
-                      controller: _question,
-                      validator: _validateQuestion,
-                      maxLength: 100,
-                    ),
-                    TextFormField(
-                      decoration: const InputDecoration(
-                        hintText: 'Antwort 1',
-                      ),
-                      controller: _answer1,
-                      validator: _validateAnswers,
-                      maxLength: 40,
-                    ),
-                    TextFormField(
-                      decoration: const InputDecoration(
-                        hintText: 'Antwort 2',
-                      ),
-                      controller: _answer2,
-                      validator: _validateAnswers,
-                      maxLength: 40,
-                    ),
-                    Row(
+      appBar: AppBar(
+        backgroundColor: Color.fromRGBO(143, 148, 251, 0.9),
+        title: Text('Frage erstellen'),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        child: Stack(
+          children: <Widget>[
+            Card(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+              margin: EdgeInsets.fromLTRB(20.0, 48.0, 20.0, 20.0),
+              elevation: 8.0,
+              child: Center(
+                child: Form(
+                  key: _addQuestionFormKey,
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        Text('Dauer: '),
-                        DropdownButton<String>(
-                          value: _selectedDurationInDays,
-                          icon: Icon(Icons.arrow_downward, color: Color.fromRGBO(143, 148, 251, 0.9)),
-                          iconSize: 24,
-                          elevation: 16,
-                          style: TextStyle(color: Color.fromRGBO(143, 148, 251, 0.9)),
-                          underline: Container(
-                            height: 2,
-                            color: Color.fromRGBO(143, 148, 251, 0.9),
+                        TextFormField(
+                          decoration: const InputDecoration(
+                            hintText: 'Fragetext',
                           ),
-                          onChanged: (String newValue) {
-                            setState(() {
-                              _selectedDurationInDays = newValue;
-                            });
-                          },
-                          items: <String>['1', '2', '3', '4', '5', '6', '7'].map<DropdownMenuItem<String>>((String durationInDays) {
-                            return DropdownMenuItem<String>(
-                              value: durationInDays,
-                              child: Text(durationInDays),
-                            );
-                          }).toList(),
+                          keyboardType: TextInputType.multiline,
+                          maxLines: 3,
+                          controller: _question,
+                          validator: _validateQuestion,
+                          maxLength: 100,
                         ),
-                        Text(' Tag(e)'),
+                        TextFormField(
+                          decoration: const InputDecoration(
+                            hintText: 'Antwort 1',
+                          ),
+                          controller: _answer1,
+                          validator: _validateAnswers,
+                          maxLength: 40,
+                        ),
+                        TextFormField(
+                          decoration: const InputDecoration(
+                            hintText: 'Antwort 2',
+                          ),
+                          controller: _answer2,
+                          validator: _validateAnswers,
+                          maxLength: 40,
+                        ),
+                        Row(
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: Text('Dauer: ', style: TextStyle(fontSize: 16.0)),
+                            ),
+                            DropdownButton<String>(
+                              value: _selectedDurationInDays,
+                              icon: Icon(Icons.arrow_downward, color: Color.fromRGBO(143, 148, 251, 0.9)),
+                              iconSize: 24,
+                              elevation: 16,
+                              style: TextStyle(color: Color.fromRGBO(143, 148, 251, 0.9)),
+                              underline: Container(
+                                height: 2,
+                                color: Color.fromRGBO(143, 148, 251, 0.9),
+                              ),
+                              onChanged: (String newValue) {
+                                setState(() {
+                                  _selectedDurationInDays = newValue;
+                                });
+                              },
+                              items: <String>['1', '2', '3', '4', '5', '6', '7']
+                                  .map<DropdownMenuItem<String>>((String durationInDays) {
+                                return DropdownMenuItem<String>(
+                                  value: durationInDays,
+                                  child: Text(durationInDays, style: TextStyle(fontSize: 16.0)),
+                                );
+                              }).toList(),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: Text(_selectedDurationInDays == '1' ? ' Tag' : ' Tage', style: TextStyle(fontSize: 16.0)),
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 18.0),
+                          child: Container(
+                            height: 50,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.0),
+                              gradient: LinearGradient(
+                                colors: [
+                                  Color.fromRGBO(143, 148, 251, 1),
+                                  Color.fromRGBO(143, 148, 251, 0.6),
+                                ],
+                              ),
+                            ),
+                            child: ButtonTheme(
+                              height: 50,
+                              minWidth: 300,
+                              child: FlatButton(
+                                child: Text(
+                                  'Erstellen',
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                ),
+                                onPressed: () => _createQuestionInCloudFirestore(),
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
-                    FlatButton(
-                      child: Text('Erstellen'),
-                      onPressed: () => _createQuestionInCloudFirestore(),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

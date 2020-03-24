@@ -153,8 +153,6 @@ class _OwnQuestionPageState extends State<OwnQuestionPage> {
                         ),
                       ),
                     );
-                  } else if (snapshot.connectionState == ConnectionState.none) {
-                    return Center(child: Text('Test'));
                   }
                   return Center(child: CircularProgressIndicator());
                 }),
