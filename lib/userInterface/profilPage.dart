@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:opinion_app/helper/systemSettings.dart';
 import 'package:opinion_app/userInterface/loginPage.dart';
 import 'package:opinion_app/userInterface/adminConsolePage.dart';
@@ -14,6 +17,8 @@ class _ProfilPageState extends State<ProfilPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   FirebaseUser firebaseUser;
   DocumentSnapshot user;
+  StorageReference firebaseStorageRef;
+  var imageURL;
 
   @override
   void initState() {
@@ -85,6 +90,9 @@ class _ProfilPageState extends State<ProfilPage> {
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
+                              Center(
+                                child: imageURL == null ? noUserImage() : displayUserImage(),
+                              ),
                               Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 10.0),
                                 child: Text(
@@ -118,19 +126,95 @@ class _ProfilPageState extends State<ProfilPage> {
             ),
           ),
           Container(
-              height: 300,
-              child: Center(
-                child: Text('Rangliste ist noch in Entwicklung.'),
-              ))
+            height: 300,
+            child: StreamBuilder<QuerySnapshot>(
+                stream: _loadHighscoreUser().snapshots(),
+                builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+                  if (snapshot.hasData == false) {
+                    return CircularProgressIndicator();
+                  }
+                  return ListView(
+                    children: snapshot.data.documents.map((DocumentSnapshot document) {
+                      return ListTile(
+                        title: Text(document['username']),
+                        trailing: Text(document['xp'].toString()),
+                      );
+                    }).toList(),
+                  );
+                  /*return ListView.separated(
+                    separatorBuilder: (context, index) => Divider(
+                      color: Colors.black,
+                    ),
+                    itemCount: 10,
+                    itemBuilder: (context, index) => Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Center(child: Text("Index $index")),
+                    ),
+                  );*/
+                }),
+          ),
         ],
       ),
     );
   }
 
+  Widget noUserImage() {
+    return Container(
+      child: Column(
+        children: <Widget>[
+          GestureDetector(
+            onTap: () async {
+              _saveUserImageInCloudStorage();
+            },
+            child: CircleAvatar(
+              radius: 40.0,
+              child: Text('+', style: TextStyle(fontSize: 40.0)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget displayUserImage() {
+    return Container(
+      child: Column(
+        children: <Widget>[
+          GestureDetector(
+            onTap: () async {
+              _saveUserImageInCloudStorage();
+            },
+            child: CircleAvatar(
+              radius: 40.0,
+              backgroundImage: NetworkImage(imageURL),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  _saveUserImageInCloudStorage() async {
+    File userImage = await ImagePicker.pickImage(source: ImageSource.gallery);  // TODO hier weitermachen Abfrag implementieren, ob ein Bild aus der Galerie geladen werden soll oder ob eins mit der Kamera geschossen werden soll.
+    final StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child(firebaseUser.uid + '.jpg');
+    final StorageUploadTask uploadTask = firebaseStorageRef.putFile(userImage);
+    imageURL = await (await uploadTask.onComplete).ref.getDownloadURL();
+    setState(() {});
+  }
+
   Future<DocumentSnapshot> _loadUserData() async {
     firebaseUser = await _auth.currentUser();
     user = await Firestore.instance.collection('users').document(firebaseUser.uid).get();
+    final ref = FirebaseStorage.instance.ref().child(firebaseUser.uid + '.jpg');
+    imageURL = await ref.getDownloadURL();
     return user;
+  }
+
+  Query _loadHighscoreUser() {
+    return Firestore.instance.collection('users').orderBy('xp', descending: true).limit(10);
   }
 
   bool _isAdmin() {

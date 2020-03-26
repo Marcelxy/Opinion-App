@@ -115,7 +115,18 @@ class _QuestionPageState extends State<QuestionPage> {
                           builder: (context, snapshot) {
                             if (snapshot.hasData == false) {
                               return CircularProgressIndicator();
-                            } else if (snapshot.connectionState == ConnectionState.done && _questionList.isNotEmpty) {
+                              // TODO
+                            } else if (_questionList.isEmpty) {
+                              return Text(
+                                'Bisher keine Daten vorhanden. Erstelle eine neue Frage.',
+                                style: TextStyle(
+                                  fontSize: 20.0,
+                                  color: Colors.white,
+                                ),
+                                textAlign: TextAlign.center,
+                              );
+                            }
+                            else if (snapshot.connectionState == ConnectionState.done && _questionList.isNotEmpty) {
                               if (_showResults == false) {
                                 return Visibility(
                                   visible: _showResults ? false : true,
