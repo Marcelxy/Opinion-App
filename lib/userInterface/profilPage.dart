@@ -22,6 +22,9 @@ class _ProfilPageState extends State<ProfilPage> {
 
   @override
   void initState() {
+    final StorageReference ref =
+        FirebaseStorage.instance.ref().child(/*firebaseUser.uid +*/ 'HL2Af3a1jScG7X2jMv89jhRNePh2.jpg');
+    imageURL = ref.getDownloadURL();
     SystemSettings.allowOnlyPortraitOrientation();
     super.initState();
   }
@@ -128,33 +131,25 @@ class _ProfilPageState extends State<ProfilPage> {
           Container(
             height: 300,
             child: StreamBuilder<QuerySnapshot>(
-                stream: _loadHighscoreUser().snapshots(),
-                builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  }
-                  if (snapshot.hasData == false) {
-                    return CircularProgressIndicator();
-                  }
-                  return ListView(
-                    children: snapshot.data.documents.map((DocumentSnapshot document) {
-                      return ListTile(
-                        title: Text(document['username']),
-                        trailing: Text(document['xp'].toString()),
-                      );
-                    }).toList(),
-                  );
-                  /*return ListView.separated(
-                    separatorBuilder: (context, index) => Divider(
-                      color: Colors.black,
-                    ),
-                    itemCount: 10,
-                    itemBuilder: (context, index) => Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Center(child: Text("Index $index")),
-                    ),
-                  );*/
-                }),
+              stream: _loadHighscoreUser().snapshots(),
+              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
+                if (snapshot.hasData == false) {
+                  return CircularProgressIndicator();
+                }
+                return ListView(
+                  children: snapshot.data.documents.map((DocumentSnapshot document) {
+                    return ListTile(
+                      leading: CircleAvatar(child: Text(document['username'][0])),
+                      title: Text(document['username']),
+                      trailing: Text(document['xp'].toString()),
+                    );
+                  }).toList(),
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -166,7 +161,7 @@ class _ProfilPageState extends State<ProfilPage> {
       child: Column(
         children: <Widget>[
           GestureDetector(
-            onTap: () async {
+            onTap: () {
               _saveUserImageInCloudStorage();
             },
             child: CircleAvatar(
@@ -184,7 +179,7 @@ class _ProfilPageState extends State<ProfilPage> {
       child: Column(
         children: <Widget>[
           GestureDetector(
-            onTap: () async {
+            onTap: () {
               _saveUserImageInCloudStorage();
             },
             child: CircleAvatar(
@@ -198,7 +193,7 @@ class _ProfilPageState extends State<ProfilPage> {
   }
 
   _saveUserImageInCloudStorage() async {
-    File userImage = await ImagePicker.pickImage(source: ImageSource.gallery);  // TODO hier weitermachen Abfrag implementieren, ob ein Bild aus der Galerie geladen werden soll oder ob eins mit der Kamera geschossen werden soll.
+    File userImage = await ImagePicker.pickImage(source: ImageSource.gallery);
     final StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child(firebaseUser.uid + '.jpg');
     final StorageUploadTask uploadTask = firebaseStorageRef.putFile(userImage);
     imageURL = await (await uploadTask.onComplete).ref.getDownloadURL();
