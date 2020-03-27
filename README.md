@@ -13,6 +13,7 @@ A app to communicate our various opinions.
 - Users can answer and vote questions from other users.
 - Users can see his/her own questions and filter this.
 - Users can see his/her own profile.
+- Users can upload a image to the profile.
 
 ## What I learned / improved in this project
 
@@ -22,6 +23,7 @@ A app to communicate our various opinions.
 - Firebase
   - E-Mail and password Authentication
   - Cloud Firestore
+  - Cloud Storage
   - Cloud Functions
 - Google Cloud Plattform
   - Cloud Scheduler
