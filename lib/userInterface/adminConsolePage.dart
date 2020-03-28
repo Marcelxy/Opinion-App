@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:opinion_app/helper/systemSettings.dart';
+import 'package:opinion_app/util/systemSettings.dart';
 
 class AdminConsolePage extends StatefulWidget {
   @override

@@ -1,15 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:opinion_app/util/theme.dart';
+import 'package:opinion_app/util/colors.dart';
 import 'package:connectivity/connectivity.dart';
+import 'package:opinion_app/widgets/clock.dart';
+import 'package:opinion_app/widgets/heading.dart';
+import 'package:opinion_app/widgets/light1.dart';
+import 'package:opinion_app/widgets/light2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:progress_dialog/progress_dialog.dart';
-import 'package:opinion_app/helper/systemSettings.dart';
+import 'package:opinion_app/util/systemSettings.dart';
 import 'package:opinion_app/userInterface/loginPage.dart';
 import 'package:opinion_app/animations/fadeAnimation.dart';
 import 'package:opinion_app/userInterface/opinionPage.dart';
 
-void main() => runApp(MaterialApp(debugShowCheckedModeBanner: false, home: RegisterPage()));
+void main() => runApp(
+      MaterialApp(
+        theme: buildOpinionAppTheme(),
+        debugShowCheckedModeBanner: false,
+        home: RegisterPage(),
+      ),
+    );
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -56,64 +68,10 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 child: Stack(
                   children: <Widget>[
-                    Positioned(
-                      left: 30,
-                      width: 80,
-                      height: 200,
-                      child: FadeAnimation(
-                        1,
-                        Container(
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: AssetImage('assets/images/light1.png'),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      left: 140,
-                      width: 80,
-                      height: 150,
-                      child: FadeAnimation(
-                        1,
-                        Container(
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: AssetImage('assets/images/light2.png'),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      right: 40,
-                      top: 40,
-                      width: 80,
-                      height: 150,
-                      child: FadeAnimation(
-                        1.3,
-                        Container(
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: AssetImage('assets/images/clock.png'),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      child: FadeAnimation(
-                        1.6,
-                        Container(
-                          margin: EdgeInsets.only(top: 70),
-                          child: Center(
-                            child: Text('Registrierung',
-                                style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.bold)),
-                          ),
-                        ),
-                      ),
-                    ),
+                    Light1(),
+                    Light2(),
+                    Clock(),
+                    Heading(heading: 'Registrierung'),
                   ],
                 ),
               ),
@@ -126,11 +84,11 @@ class _RegisterPageState extends State<RegisterPage> {
                       Container(
                         padding: EdgeInsets.all(5.0),
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10.0),
+                          color: secondaryBackgroundWhite,
+                          borderRadius: BorderRadius.circular(12.0),
                           boxShadow: [
                             BoxShadow(
-                              color: Color.fromRGBO(143, 148, 251, 0.4),
+                              color: primaryBlue.withOpacity(0.4),
                               blurRadius: 20.0,
                               offset: Offset(0, 10),
                             ),
@@ -140,61 +98,9 @@ class _RegisterPageState extends State<RegisterPage> {
                           key: _registerFormKey,
                           child: Column(
                             children: <Widget>[
-                              Container(
-                                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
-                                child: TextFormField(
-                                  decoration: const InputDecoration(
-                                    icon: Icon(Icons.person, size: 25.0, color: Color.fromRGBO(143, 148, 251, 0.95)),
-                                    labelText: 'Benutzername...',
-                                    labelStyle: TextStyle(color: Color.fromRGBO(143, 148, 251, 1)),
-                                    contentPadding: EdgeInsets.only(bottom: 12.0),
-                                    isDense: true,
-                                    counterText: '',
-                                  ),
-                                  keyboardType: TextInputType.text,
-                                  controller: _username,
-                                  validator: _validateUsername,
-                                  maxLength: 20,
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
-                                child: TextFormField(
-                                  decoration: const InputDecoration(
-                                    icon: Icon(Icons.email, size: 25.0, color: Color.fromRGBO(143, 148, 251, 0.95)),
-                                    labelText: 'E-Mail...',
-                                    labelStyle: TextStyle(color: Color.fromRGBO(143, 148, 251, 1)),
-                                    contentPadding: EdgeInsets.only(bottom: 12.0),
-                                    isDense: true,
-                                    counterText: '',
-                                  ),
-                                  keyboardType: TextInputType.emailAddress,
-                                  controller: _email,
-                                  validator: _validateEmail,
-                                  maxLength: 70,
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
-                                child: TextFormField(
-                                  decoration: InputDecoration(
-                                    icon: Icon(Icons.lock, size: 25.0, color: Color.fromRGBO(143, 148, 251, 0.95)),
-                                    suffixIcon: IconButton(
-                                        icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off,
-                                            size: 25.0, color: Color.fromRGBO(143, 148, 251, 0.95)),
-                                        onPressed: () => _showPassword()),
-                                    labelText: 'Passwort...',
-                                    labelStyle: TextStyle(color: Color.fromRGBO(143, 148, 251, 1)),
-                                    contentPadding: EdgeInsets.only(bottom: 0),
-                                    isDense: true,
-                                    counterText: '',
-                                  ),
-                                  obscureText: _obscurePassword ? false : true,
-                                  controller: _password,
-                                  validator: _validatePassword,
-                                  maxLength: 50,
-                                ),
-                              ),
+                              _usernameTextFormField(),
+                              _emailTextFormField(),
+                              _passwordTextFormField(),
                             ],
                           ),
                         ),
@@ -208,11 +114,11 @@ class _RegisterPageState extends State<RegisterPage> {
                       Container(
                         height: 50,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10.0),
+                          borderRadius: BorderRadius.circular(12.0),
                           gradient: LinearGradient(
                             colors: [
-                              Color.fromRGBO(143, 148, 251, 1),
-                              Color.fromRGBO(143, 148, 251, 0.6),
+                              primaryBlue,
+                              primaryBlue.withOpacity(0.6),
                             ],
                           ),
                         ),
@@ -226,7 +132,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                   onPressed: () => _register(context),
                                   child: Text(
                                     'Registrieren',
-                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                        color: textOnSecondaryWhite, fontSize: 16.0, fontWeight: FontWeight.bold),
                                   ),
                                 );
                               },
@@ -244,7 +151,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         onTap: () => _toPage(context, LoginPage()),
                         child: Text(
                           'Zum Login',
-                          style: TextStyle(color: Color.fromRGBO(143, 148, 251, 1), fontSize: 16.0),
+                          style: TextStyle(color: primaryBlue, fontSize: 16.0),
                         ),
                       ),
                     ),
@@ -258,6 +165,25 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
+  /// ////////////////////////////////////////
+  ///     Benutzername Eingabefeld
+  /// ////////////////////////////////////////
+
+  Widget _usernameTextFormField() => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
+        child: TextFormField(
+          decoration: InputDecoration(
+            icon: Icon(Icons.person, size: IconTheme.of(context).size, color: IconTheme.of(context).color),
+            labelText: 'Benutzername...',
+            counterText: '',
+          ),
+          keyboardType: TextInputType.text,
+          controller: _username,
+          validator: _validateUsername,
+          maxLength: 20,
+        ),
+      );
+
   String _validateUsername(String username) {
     int minLength = 3;
     if (username.trim().isEmpty) {
@@ -268,6 +194,25 @@ class _RegisterPageState extends State<RegisterPage> {
       return null;
     }
   }
+
+  /// ////////////////////////////////////////
+  ///     E-Mail Eingabefeld
+  /// ////////////////////////////////////////
+
+  Widget _emailTextFormField() => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
+        child: TextFormField(
+          decoration: InputDecoration(
+            icon: Icon(Icons.email, size: IconTheme.of(context).size, color: IconTheme.of(context).color),
+            labelText: 'E-Mail...',
+            counterText: '',
+          ),
+          keyboardType: TextInputType.emailAddress,
+          controller: _email,
+          validator: _validateEmail,
+          maxLength: 70,
+        ),
+      );
 
   /// E-Mail Validierung siehe: https://pub.dev/packages/email_validator
   String _validateEmail(String email) {
@@ -280,6 +225,29 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
+  /// ////////////////////////////////////////
+  ///     Passwort Eingabefeld
+  /// ////////////////////////////////////////
+
+  Widget _passwordTextFormField() => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
+        child: TextFormField(
+          decoration: InputDecoration(
+            icon: Icon(Icons.lock, size: IconTheme.of(context).size, color: IconTheme.of(context).color),
+            suffixIcon: IconButton(
+                icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off,
+                    size: IconTheme.of(context).size, color: IconTheme.of(context).color),
+                onPressed: () => _showPassword()),
+            labelText: 'Passwort...',
+            counterText: '',
+          ),
+          obscureText: _obscurePassword ? false : true,
+          controller: _password,
+          validator: _validatePassword,
+          maxLength: 50,
+        ),
+      );
+
   String _validatePassword(String password) {
     int minLength = 6;
     if (password.isEmpty) {
@@ -290,6 +258,16 @@ class _RegisterPageState extends State<RegisterPage> {
       return null;
     }
   }
+
+  void _showPassword() {
+    setState(() {
+      _obscurePassword = !_obscurePassword;
+    });
+  }
+
+  /// ////////////////////////////////////////
+  ///           Registrierung
+  /// ////////////////////////////////////////
 
   _register(BuildContext context) async {
     bool registerSuccessful = false;
@@ -346,12 +324,6 @@ class _RegisterPageState extends State<RegisterPage> {
         content: const Text('Benutzer Registrierung fehlgeschlagen. Bitte erneut versuchen.'),
       ));
     }
-  }
-
-  void _showPassword() {
-    setState(() {
-      _obscurePassword = !_obscurePassword;
-    });
   }
 
   void _toPage(BuildContext context, Widget page) {

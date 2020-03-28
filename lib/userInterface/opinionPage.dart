@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:opinion_app/helper/systemSettings.dart';
+import 'package:opinion_app/util/systemSettings.dart';
 import 'package:opinion_app/userInterface/profilPage.dart';
 import 'package:opinion_app/userInterface/questionPage.dart';
 import 'package:opinion_app/userInterface/ownQuestionPage.dart';

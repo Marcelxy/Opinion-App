@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:progress_dialog/progress_dialog.dart';
-import 'package:opinion_app/helper/systemSettings.dart';
+import 'package:opinion_app/util/systemSettings.dart';
 import 'package:opinion_app/animations/fadeAnimation.dart';
 import 'package:opinion_app/userInterface/opinionPage.dart';
 import 'package:opinion_app/userInterface/registerPage.dart';

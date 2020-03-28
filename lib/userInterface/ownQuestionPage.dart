@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:opinion_app/models/question.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:opinion_app/helper/systemSettings.dart';
+import 'package:opinion_app/util/systemSettings.dart';
 import 'package:opinion_app/userInterface/createQuestionPage.dart';
-import 'package:opinion_app/widgets/percentProgressBarWidget.dart';
+import 'package:opinion_app/widgets/percentProgressBar.dart';
 
 class OwnQuestionPage extends StatefulWidget {
   @override
@@ -159,7 +159,6 @@ class _OwnQuestionPageState extends State<OwnQuestionPage> {
             floatingActionButton: FloatingActionButton(
               onPressed: () => _toPage(context),
               child: Icon(Icons.add),
-              backgroundColor: Color.fromRGBO(143, 148, 251, 1),
             ),
           ),
         ),

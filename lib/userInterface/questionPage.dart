@@ -4,8 +4,8 @@ import 'package:opinion_app/models/question.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:opinion_app/helper/systemSettings.dart';
-import 'package:opinion_app/widgets/creatorWidget.dart';
+import 'package:opinion_app/util/systemSettings.dart';
+import 'package:opinion_app/widgets/creator.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 class QuestionPage extends StatefulWidget {

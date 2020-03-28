@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:opinion_app/helper/systemSettings.dart';
+import 'package:opinion_app/util/systemSettings.dart';
 import 'package:opinion_app/userInterface/opinionPage.dart';
 
 class CreateQuestionPage extends StatefulWidget {
@@ -34,7 +34,6 @@ class _CreateQuestionPageState extends State<CreateQuestionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromRGBO(143, 148, 251, 0.9),
         title: Text('Frage erstellen'),
         centerTitle: true,
       ),
