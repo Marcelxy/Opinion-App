@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:opinion_app/util/colors.dart';
 import 'package:connectivity/connectivity.dart';
+import 'package:opinion_app/widgets/clock.dart';
+import 'package:opinion_app/widgets/light1.dart';
+import 'package:opinion_app/widgets/light2.dart';
+import 'package:opinion_app/widgets/heading.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:opinion_app/util/systemSettings.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:opinion_app/userInterface/loginPage.dart';
 import 'package:opinion_app/animations/fadeAnimation.dart';
 
@@ -33,7 +39,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Container(
           child: Column(
@@ -45,64 +50,10 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 ),
                 child: Stack(
                   children: <Widget>[
-                    Positioned(
-                      left: 30,
-                      width: 80,
-                      height: 200,
-                      child: FadeAnimation(
-                        1,
-                        Container(
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: AssetImage('assets/images/light1.png'),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      left: 140,
-                      width: 80,
-                      height: 150,
-                      child: FadeAnimation(
-                        1,
-                        Container(
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: AssetImage('assets/images/light2.png'),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      right: 40,
-                      top: 40,
-                      width: 80,
-                      height: 150,
-                      child: FadeAnimation(
-                        1.3,
-                        Container(
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: AssetImage('assets/images/clock.png'),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      child: FadeAnimation(
-                        1.6,
-                        Container(
-                          margin: EdgeInsets.only(top: 70),
-                          child: Center(
-                            child: Text('Zurücksetzen',
-                                style: TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.bold)),
-                          ),
-                        ),
-                      ),
-                    ),
+                    Light1(),
+                    Light2(),
+                    Clock(),
+                    Heading(heading: 'Zurücksetzen'),
                   ],
                 ),
               ),
@@ -110,19 +61,19 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 height: 40,
               ),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 0.0),
+                padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 0.0),
                 child: Column(
                   children: <Widget>[
                     FadeAnimation(
                       1.8,
                       Container(
-                        padding: EdgeInsets.all(5.0),
+                        padding: const EdgeInsets.all(5.0),
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10.0),
+                          color: secondaryBackgroundWhite,
+                          borderRadius: BorderRadius.circular(12.0),
                           boxShadow: [
                             BoxShadow(
-                              color: Color.fromRGBO(143, 148, 251, 0.4),
+                              color: primaryBlue.withOpacity(0.4),
                               blurRadius: 20.0,
                               offset: Offset(0, 10),
                             ),
@@ -132,23 +83,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           key: _forgotPasswordKey,
                           child: Column(
                             children: <Widget>[
-                              Container(
-                                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
-                                child: TextFormField(
-                                  decoration: const InputDecoration(
-                                    icon: Icon(Icons.email, size: 25.0, color: Color.fromRGBO(143, 148, 251, 0.95)),
-                                    labelText: 'E-Mail...',
-                                    labelStyle: TextStyle(color: Color.fromRGBO(143, 148, 251, 1)),
-                                    contentPadding: EdgeInsets.only(bottom: 12.0),
-                                    isDense: true,
-                                    counterText: '',
-                                  ),
-                                  keyboardType: TextInputType.emailAddress,
-                                  controller: _email,
-                                  validator: _validateEmail,
-                                  maxLength: 70,
-                                ),
-                              ),
+                              _emailTextFormField(),
                             ],
                           ),
                         ),
@@ -162,11 +97,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       Container(
                         height: 50,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10.0),
+                          borderRadius: BorderRadius.circular(12.0),
                           gradient: LinearGradient(
                             colors: [
-                              Color.fromRGBO(143, 148, 251, 1),
-                              Color.fromRGBO(143, 148, 251, 0.6),
+                              primaryBlue,
+                              primaryBlue.withOpacity(0.6),
                             ],
                           ),
                         ),
@@ -180,7 +115,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                   onPressed: () => _resetPassword(context),
                                   child: Text(
                                     'Passwort zurücksetzen',
-                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                    style: TextStyle(color: textOnSecondaryWhite, fontSize: 16.0, fontWeight: FontWeight.bold),
                                   ),
                                 );
                               },
@@ -198,7 +133,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         onTap: () => _toPage(context, LoginPage()),
                         child: Text(
                           'Zum Login',
-                          style: TextStyle(color: Color.fromRGBO(143, 148, 251, 1), fontSize: 16.0),
+                          style: TextStyle(color: primaryBlue, fontSize: 16.0),
                         ),
                       ),
                     ),
@@ -212,15 +147,41 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     );
   }
 
+  /// ////////////////////////////////////////
+  ///     E-Mail Eingabefeld
+  /// ////////////////////////////////////////
+
+  Widget _emailTextFormField() => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
+        child: TextFormField(
+          decoration: InputDecoration(
+            icon: Icon(Icons.email, size: IconTheme.of(context).size, color: IconTheme.of(context).color),
+            labelText: 'E-Mail...',
+            counterText: '',
+          ),
+          keyboardType: TextInputType.emailAddress,
+          controller: _email,
+          validator: _validateEmail,
+          maxLength: 70,
+        ),
+      );
+
+  /// E-Mail Validierung siehe: https://pub.dev/packages/email_validator
   String _validateEmail(String email) {
     if (email.trim().isEmpty) {
       return 'Bitte E-Mail eingeben.';
+    } else if (EmailValidator.validate(email.trim()) == false) {
+      return 'E-Mail Format ist nicht korrekt.';
     } else {
       return null;
     }
   }
 
-  Future<void> _resetPassword(BuildContext context) async {
+  /// ////////////////////////////////////////
+  ///       Passwort zurücksetzen
+  /// ////////////////////////////////////////
+
+  _resetPassword(BuildContext context) async {
     bool resetPasswordSuccessful = false;
     String errorMessage;
     var internetConnectivity = await (Connectivity().checkConnectivity());
@@ -245,7 +206,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               errorMessage = 'Ihr Konto wurde gesperrt. Bitte melden sie sich beim Support.';
               break;
             case "ERROR_TOO_MANY_REQUESTS":
-              errorMessage = 'Zu viele Anfragen. Versuchen sie es bitte später erneut.';
+              errorMessage = 'Zu viele ungültige Versuche. Versuchen sie es bitte später erneut.';
               break;
             default:
               errorMessage = 'Unbekannter Fehler ist aufgetreten. Versuchen sie es erneut.';

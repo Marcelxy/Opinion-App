@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:opinion_app/util/colors.dart';
 import 'package:opinion_app/animations/fadeAnimation.dart';
 
 class Heading extends StatefulWidget {
@@ -24,7 +25,7 @@ class HeadingState extends State<Heading> {
           margin: EdgeInsets.only(top: 70),
           child: Center(
             child: Text(widget.heading,
-                style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.bold)),
+                style: TextStyle(color: textOnSecondaryWhite, fontSize: 40, fontWeight: FontWeight.bold)),
           ),
         ),
       ),
