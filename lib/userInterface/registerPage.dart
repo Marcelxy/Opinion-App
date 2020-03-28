@@ -3,9 +3,9 @@ import 'package:opinion_app/util/theme.dart';
 import 'package:opinion_app/util/colors.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:opinion_app/widgets/clock.dart';
-import 'package:opinion_app/widgets/heading.dart';
 import 'package:opinion_app/widgets/light1.dart';
 import 'package:opinion_app/widgets/light2.dart';
+import 'package:opinion_app/widgets/heading.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
@@ -76,13 +76,13 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 0.0),
+                padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 0.0),
                 child: Column(
                   children: <Widget>[
                     FadeAnimation(
                       1.8,
                       Container(
-                        padding: EdgeInsets.all(5.0),
+                        padding: const EdgeInsets.all(5.0),
                         decoration: BoxDecoration(
                           color: secondaryBackgroundWhite,
                           borderRadius: BorderRadius.circular(12.0),
@@ -132,7 +132,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   onPressed: () => _register(context),
                                   child: Text(
                                     'Registrieren',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         color: textOnSecondaryWhite, fontSize: 16.0, fontWeight: FontWeight.bold),
                                   ),
                                 );
@@ -151,7 +151,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         onTap: () => _toPage(context, LoginPage()),
                         child: Text(
                           'Zum Login',
-                          style: TextStyle(color: primaryBlue, fontSize: 16.0),
+                          style: const TextStyle(color: primaryBlue, fontSize: 16.0),
                         ),
                       ),
                     ),
