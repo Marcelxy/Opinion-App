@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:opinion_app/util/systemSettings.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:opinion_app/userInterface/loginPage.dart';
 import 'package:opinion_app/userInterface/adminConsolePage.dart';
 
@@ -23,7 +23,7 @@ class _ProfilPageState extends State<ProfilPage> {
   @override
   void initState() {
     final StorageReference ref =
-        FirebaseStorage.instance.ref().child(/*firebaseUser.uid +*/ 'HL2Af3a1jScG7X2jMv89jhRNePh2.jpg');
+        FirebaseStorage.instance.ref().child(/*firebaseUser.uid + */'HL2Af3a1jScG7X2jMv89jhRNePh2.jpg');
     imageURL = ref.getDownloadURL();
     SystemSettings.allowOnlyPortraitOrientation();
     super.initState();

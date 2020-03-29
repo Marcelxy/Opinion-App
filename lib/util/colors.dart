@@ -10,4 +10,5 @@ const secondaryBlueDark = const Color(0xff5b65c6);
 
 const textOnPrimaryBlack = const Color(0xff000000);
 const textOnSecondaryWhite = const Color(0xffffffff);
+const textOnSecondaryWhite70 = const Color(0xb3ffffff);
 const secondaryBackgroundWhite = const Color(0xffffffff);

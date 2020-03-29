@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:opinion_app/util/colors.dart';
 import 'package:opinion_app/util/systemSettings.dart';
 import 'package:opinion_app/userInterface/profilPage.dart';
 import 'package:opinion_app/userInterface/questionPage.dart';
@@ -33,24 +34,24 @@ class _OpinionPageState extends State<OpinionPage> {
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.question_answer, color: currentPageNumber == 0 ? Color.fromRGBO(143, 148, 251, 1) : Colors.grey),
+            icon: Icon(Icons.question_answer, color: currentPageNumber == 0 ? primaryBlue : Colors.grey),
             title: Text(
               'Fragen',
-              style: TextStyle(color: currentPageNumber == 0 ? Color.fromRGBO(143, 148, 251, 1) : Colors.grey),
+              style: TextStyle(color: currentPageNumber == 0 ? primaryBlue : Colors.grey),
             ),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle, color: currentPageNumber == 1 ? Color.fromRGBO(143, 148, 251, 1) : Colors.grey),
+            icon: Icon(Icons.add_circle, color: currentPageNumber == 1 ? primaryBlue : Colors.grey),
             title: Text(
               'Meine Fragen',
-              style: TextStyle(color: currentPageNumber == 1 ? Color.fromRGBO(143, 148, 251, 1) : Colors.grey),
+              style: TextStyle(color: currentPageNumber == 1 ? primaryBlue : Colors.grey),
             ),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person, color: currentPageNumber == 2 ? Color.fromRGBO(143, 148, 251, 1) : Colors.grey),
+            icon: Icon(Icons.person, color: currentPageNumber == 2 ? primaryBlue : Colors.grey),
             title: Text(
               'Profil',
-              style: TextStyle(color: currentPageNumber == 2 ? Color.fromRGBO(143, 148, 251, 1) : Colors.grey),
+              style: TextStyle(color: currentPageNumber == 2 ? primaryBlue : Colors.grey),
             ),
           ),
         ],

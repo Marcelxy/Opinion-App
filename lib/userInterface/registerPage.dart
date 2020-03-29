@@ -33,6 +33,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _username = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   ProgressDialog _progressDialog;
   bool _obscurePassword;
 
@@ -46,6 +47,12 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   void initState() {
+    // automatischer Login
+    getUser().then((user) {
+      if (user != null) {
+        _toPage(context, OpinionPage());
+      }
+    });
     _obscurePassword = false;
     _progressDialog = ProgressDialog(context);
     _progressDialog.style(message: 'Registrierung...');
@@ -276,8 +283,7 @@ class _RegisterPageState extends State<RegisterPage> {
       if (_registerFormKey.currentState.validate()) {
         _progressDialog.show();
         try {
-          final FirebaseAuth auth = FirebaseAuth.instance;
-          final FirebaseUser user = (await auth.createUserWithEmailAndPassword(
+          final FirebaseUser user = (await _auth.createUserWithEmailAndPassword(
                   email: _email.text.toString(), password: _password.text.toString()))
               .user;
           _createUserInCloudFirestore(user);
@@ -323,6 +329,10 @@ class _RegisterPageState extends State<RegisterPage> {
         content: const Text('Benutzer Registrierung fehlgeschlagen. Bitte erneut versuchen.'),
       ));
     }
+  }
+
+  Future<FirebaseUser> getUser() async {
+    return await _auth.currentUser();
   }
 
   void _toPage(BuildContext context, Widget page) {

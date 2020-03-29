@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 
-class CreatorWidget extends StatefulWidget {
+class Creator extends StatefulWidget {
   final String creatorUsername;
 
-  const CreatorWidget({Key key, this.creatorUsername}) : super(key: key);
+  const Creator({Key key, this.creatorUsername}) : super(key: key);
 
   @override
-  CreatorWidgetState createState() => CreatorWidgetState(creatorUsername: this.creatorUsername);
+  CreatorState createState() => CreatorState(creatorUsername: this.creatorUsername);
 }
 
-class CreatorWidgetState extends State<CreatorWidget> {
+class CreatorState extends State<Creator> {
   String creatorUsername;
 
-  CreatorWidgetState({this.creatorUsername});
+  CreatorState({this.creatorUsername});
 
   @override
   Widget build(BuildContext context) {
