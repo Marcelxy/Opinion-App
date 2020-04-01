@@ -247,6 +247,7 @@ class _QuestionPageState extends State<QuestionPage> {
         List<String> answers = List.from(_questionSnapshot.data['answers']);
         _counterAnswers = List.from(_questionSnapshot.data['counterAnswers']);
         _question = new Question(
+          _questionSnapshot.data['qid'],
           _questionSnapshot.data['question'],
           answers,
           _counterAnswers,

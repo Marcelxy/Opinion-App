@@ -8,9 +8,9 @@ import 'package:opinion_app/widgets/heading.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:opinion_app/util/systemSettings.dart';
-import 'package:email_validator/email_validator.dart';
 import 'package:opinion_app/userInterface/loginPage.dart';
 import 'package:opinion_app/animations/fadeAnimation.dart';
+import 'package:opinion_app/widgets/emailTextFormField.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   @override
@@ -19,12 +19,11 @@ class ForgotPasswordPage extends StatefulWidget {
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final _forgotPasswordKey = GlobalKey<FormState>();
-  final _email = TextEditingController();
   ProgressDialog _progressDialog;
+  String _email;
 
   @override
   void dispose() {
-    _email.dispose();
     super.dispose();
   }
 
@@ -83,7 +82,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           key: _forgotPasswordKey,
                           child: Column(
                             children: <Widget>[
-                              _emailTextFormField(),
+                              EMailTextFormField(
+                                onSaved: (String email) => _email = email,
+                              ),
                             ],
                           ),
                         ),
@@ -115,7 +116,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                   onPressed: () => _resetPassword(context),
                                   child: Text(
                                     'Passwort zurücksetzen',
-                                    style: TextStyle(color: textOnSecondaryWhite, fontSize: 16.0, fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                        color: textOnSecondaryWhite, fontSize: 16.0, fontWeight: FontWeight.bold),
                                   ),
                                 );
                               },
@@ -148,36 +150,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   }
 
   /// ////////////////////////////////////////
-  ///     E-Mail Eingabefeld
-  /// ////////////////////////////////////////
-
-  Widget _emailTextFormField() => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
-        child: TextFormField(
-          decoration: InputDecoration(
-            icon: Icon(Icons.email, size: IconTheme.of(context).size, color: IconTheme.of(context).color),
-            labelText: 'E-Mail...',
-            counterText: '',
-          ),
-          keyboardType: TextInputType.emailAddress,
-          controller: _email,
-          validator: _validateEmail,
-          maxLength: 70,
-        ),
-      );
-
-  /// E-Mail Validierung siehe: https://pub.dev/packages/email_validator
-  String _validateEmail(String email) {
-    if (email.trim().isEmpty) {
-      return 'Bitte E-Mail eingeben.';
-    } else if (EmailValidator.validate(email.trim()) == false) {
-      return 'E-Mail Format ist nicht korrekt.';
-    } else {
-      return null;
-    }
-  }
-
-  /// ////////////////////////////////////////
   ///       Passwort zurücksetzen
   /// ////////////////////////////////////////
 
@@ -187,10 +159,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     var internetConnectivity = await (Connectivity().checkConnectivity());
     if (internetConnectivity == ConnectivityResult.mobile || internetConnectivity == ConnectivityResult.wifi) {
       if (_forgotPasswordKey.currentState.validate()) {
+        _forgotPasswordKey.currentState.save();
         _progressDialog.show();
         try {
           final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-          await _firebaseAuth.sendPasswordResetEmail(email: _email.text.toString());
+          await _firebaseAuth.sendPasswordResetEmail(email: _email);
           Scaffold.of(context).showSnackBar(
               SnackBar(content: Text('E-Mail zum zurücksetzen des Passworts wurde erfolgreich gesendet.')));
           resetPasswordSuccessful = true;

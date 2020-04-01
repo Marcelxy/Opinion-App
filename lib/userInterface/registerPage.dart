@@ -8,12 +8,13 @@ import 'package:opinion_app/widgets/light2.dart';
 import 'package:opinion_app/widgets/heading.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:email_validator/email_validator.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:opinion_app/util/systemSettings.dart';
 import 'package:opinion_app/userInterface/loginPage.dart';
 import 'package:opinion_app/animations/fadeAnimation.dart';
 import 'package:opinion_app/userInterface/opinionPage.dart';
+import 'package:opinion_app/widgets/emailTextFormField.dart';
+import 'package:opinion_app/widgets/passwordTextFormField.dart';
 
 void main() => runApp(
       MaterialApp(
@@ -31,17 +32,14 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   final _registerFormKey = GlobalKey<FormState>();
   final _username = TextEditingController();
-  final _email = TextEditingController();
-  final _password = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   ProgressDialog _progressDialog;
-  bool _obscurePassword;
+  String _email;
+  String _password;
 
   @override
   void dispose() {
     _username.dispose();
-    _email.dispose();
-    _password.dispose();
     super.dispose();
   }
 
@@ -53,7 +51,6 @@ class _RegisterPageState extends State<RegisterPage> {
         _toPage(context, OpinionPage());
       }
     });
-    _obscurePassword = false;
     _progressDialog = ProgressDialog(context);
     _progressDialog.style(message: 'Registrierung...');
     SystemSettings.allowOnlyPortraitOrientation();
@@ -105,8 +102,12 @@ class _RegisterPageState extends State<RegisterPage> {
                           child: Column(
                             children: <Widget>[
                               _usernameTextFormField(),
-                              _emailTextFormField(),
-                              _passwordTextFormField(),
+                              EMailTextFormField(
+                                onSaved: (String email) => _email = email,
+                              ),
+                              PasswordTextFormField(
+                                onSaved: (String password) => _password = password,
+                              ),
                             ],
                           ),
                         ),
@@ -202,76 +203,6 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   /// ////////////////////////////////////////
-  ///     E-Mail Eingabefeld
-  /// ////////////////////////////////////////
-
-  Widget _emailTextFormField() => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
-        child: TextFormField(
-          decoration: InputDecoration(
-            icon: Icon(Icons.email, size: IconTheme.of(context).size, color: IconTheme.of(context).color),
-            labelText: 'E-Mail...',
-            counterText: '',
-          ),
-          keyboardType: TextInputType.emailAddress,
-          controller: _email,
-          validator: _validateEmail,
-          maxLength: 70,
-        ),
-      );
-
-  /// E-Mail Validierung siehe: https://pub.dev/packages/email_validator
-  String _validateEmail(String email) {
-    if (email.trim().isEmpty) {
-      return 'Bitte E-Mail eingeben.';
-    } else if (EmailValidator.validate(email.trim()) == false) {
-      return 'E-Mail Format ist nicht korrekt.';
-    } else {
-      return null;
-    }
-  }
-
-  /// ////////////////////////////////////////
-  ///     Passwort Eingabefeld
-  /// ////////////////////////////////////////
-
-  Widget _passwordTextFormField() => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
-        child: TextFormField(
-          decoration: InputDecoration(
-            icon: Icon(Icons.lock, size: IconTheme.of(context).size, color: IconTheme.of(context).color),
-            suffixIcon: IconButton(
-                icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off,
-                    size: IconTheme.of(context).size, color: IconTheme.of(context).color),
-                onPressed: () => _showPassword()),
-            labelText: 'Passwort...',
-            counterText: '',
-          ),
-          obscureText: _obscurePassword ? false : true,
-          controller: _password,
-          validator: _validatePassword,
-          maxLength: 50,
-        ),
-      );
-
-  String _validatePassword(String password) {
-    int minLength = 6;
-    if (password.isEmpty) {
-      return 'Bitte Passwort eingeben.';
-    } else if (password.length < minLength) {
-      return 'Mindestens $minLength Zeichen benötigt.';
-    } else {
-      return null;
-    }
-  }
-
-  void _showPassword() {
-    setState(() {
-      _obscurePassword = !_obscurePassword;
-    });
-  }
-
-  /// ////////////////////////////////////////
   ///           Registrierung
   /// ////////////////////////////////////////
 
@@ -281,11 +212,11 @@ class _RegisterPageState extends State<RegisterPage> {
     var internetConnectivity = await (Connectivity().checkConnectivity());
     if (internetConnectivity == ConnectivityResult.mobile || internetConnectivity == ConnectivityResult.wifi) {
       if (_registerFormKey.currentState.validate()) {
+        _registerFormKey.currentState.save();
         _progressDialog.show();
         try {
-          final FirebaseUser user = (await _auth.createUserWithEmailAndPassword(
-                  email: _email.text.toString(), password: _password.text.toString()))
-              .user;
+          final FirebaseUser user =
+              (await _auth.createUserWithEmailAndPassword(email: _email, password: _password)).user;
           _createUserInCloudFirestore(user);
           registerSuccessful = true;
         } catch (error) {

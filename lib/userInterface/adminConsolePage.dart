@@ -69,6 +69,7 @@ class _AdminConsolePageState extends State<AdminConsolePage> {
   Future<void> _releaseQuestion(bool release, String qid, BuildContext context) async {
     String status;
     String nextStatus;
+    int durationInDays;
     status = release ? 'Freigegeben' : 'Nicht freigegeben';
     nextStatus = release ? 'releasedQuestions' : 'notReleasedQuestions';
     try {
@@ -79,6 +80,11 @@ class _AdminConsolePageState extends State<AdminConsolePage> {
         DocumentSnapshot _user = await Firestore.instance.collection('users').document(user.uid).get();
         List<String> answers = List.from(question['answers']);
         List<int> counterAnswers = List.from(question['counterAnswers']);
+        if (release) {
+          durationInDays = question.data['durationInDays'];
+        } else {
+          durationInDays = 15;
+        }
         await Firestore.instance.collection(nextStatus).document(qid).setData({
           'qid': qid,
           'question': question.data['question'],
@@ -89,12 +95,12 @@ class _AdminConsolePageState extends State<AdminConsolePage> {
           'answers': FieldValue.arrayUnion(answers),
           'counterAnswers': counterAnswers,
           'created': FieldValue.serverTimestamp(),
-          'durationInDays': question.data['durationInDays'],
+          'durationInDays': durationInDays,
         });
-        Firestore.instance.collection('users').document(user.uid).updateData({
+        await Firestore.instance.collection('users').document(user.uid).updateData({
           nextStatus: FieldValue.arrayUnion([qid]),
         });
-        Firestore.instance.collection('users').document(user.uid).updateData({
+        await Firestore.instance.collection('users').document(user.uid).updateData({
           'questionRepository': FieldValue.arrayRemove([qid]),
         });
         if (release) {

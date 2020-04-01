@@ -8,10 +8,11 @@ import 'package:opinion_app/widgets/heading.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:opinion_app/util/systemSettings.dart';
-import 'package:email_validator/email_validator.dart';
 import 'package:opinion_app/animations/fadeAnimation.dart';
 import 'package:opinion_app/userInterface/opinionPage.dart';
 import 'package:opinion_app/userInterface/registerPage.dart';
+import 'package:opinion_app/widgets/emailTextFormField.dart';
+import 'package:opinion_app/widgets/passwordTextFormField.dart';
 import 'package:opinion_app/userInterface/forgotPasswordPage.dart';
 
 class LoginPage extends StatefulWidget {
@@ -21,21 +22,17 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _loginFormKey = GlobalKey<FormState>();
-  final _email = TextEditingController();
-  final _password = TextEditingController();
   ProgressDialog _progressDialog;
-  bool _obscurePassword;
+  String _email;
+  String _password;
 
   @override
   void dispose() {
-    _email.dispose();
-    _password.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
-    _obscurePassword = false;
     _progressDialog = new ProgressDialog(context);
     _progressDialog.style(message: 'Login...');
     SystemSettings.allowOnlyPortraitOrientation();
@@ -86,8 +83,12 @@ class _LoginPageState extends State<LoginPage> {
                           key: _loginFormKey,
                           child: Column(
                             children: <Widget>[
-                              _emailTextFormField(),
-                              _passwordTextFormField(),
+                              EMailTextFormField(
+                                onSaved: (String email) => _email = email,
+                              ),
+                              PasswordTextFormField(
+                                onSaved: (String password) => _password = password,
+                              ),
                             ],
                           ),
                         ),
@@ -119,7 +120,8 @@ class _LoginPageState extends State<LoginPage> {
                                   onPressed: () => _login(context),
                                   child: Text(
                                     'Login',
-                                    style: const TextStyle(color: textOnSecondaryWhite, fontSize: 16.0, fontWeight: FontWeight.bold),
+                                    style: const TextStyle(
+                                        color: textOnSecondaryWhite, fontSize: 16.0, fontWeight: FontWeight.bold),
                                   ),
                                 );
                               },
@@ -165,73 +167,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   /// ////////////////////////////////////////
-  ///     E-Mail Eingabefeld
-  /// ////////////////////////////////////////
-
-  Widget _emailTextFormField() => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
-        child: TextFormField(
-          decoration: InputDecoration(
-            icon: Icon(Icons.email, size: IconTheme.of(context).size, color: IconTheme.of(context).color),
-            labelText: 'E-Mail...',
-            counterText: '',
-          ),
-          keyboardType: TextInputType.emailAddress,
-          controller: _email,
-          validator: _validateEmail,
-          maxLength: 70,
-        ),
-      );
-
-  /// E-Mail Validierung siehe: https://pub.dev/packages/email_validator
-  String _validateEmail(String email) {
-    if (email.trim().isEmpty) {
-      return 'Bitte E-Mail eingeben.';
-    } else if (EmailValidator.validate(email.trim()) == false) {
-      return 'E-Mail Format ist nicht korrekt.';
-    } else {
-      return null;
-    }
-  }
-
-  /// ////////////////////////////////////////
-  ///     Passwort Eingabefeld
-  /// ////////////////////////////////////////
-
-  Widget _passwordTextFormField() => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
-        child: TextFormField(
-          decoration: InputDecoration(
-            icon: Icon(Icons.lock, size: IconTheme.of(context).size, color: IconTheme.of(context).color),
-            suffixIcon: IconButton(
-                icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off,
-                    size: IconTheme.of(context).size, color: IconTheme.of(context).color),
-                onPressed: () => _showPassword()),
-            labelText: 'Passwort...',
-            counterText: '',
-          ),
-          obscureText: _obscurePassword ? false : true,
-          controller: _password,
-          validator: _validatePassword,
-          maxLength: 50,
-        ),
-      );
-
-  String _validatePassword(String password) {
-    if (password.isEmpty) {
-      return 'Bitte Passwort eingeben.';
-    } else {
-      return null;
-    }
-  }
-
-  void _showPassword() {
-    setState(() {
-      _obscurePassword = !_obscurePassword;
-    });
-  }
-
-  /// ////////////////////////////////////////
   ///           Login
   /// ////////////////////////////////////////
 
@@ -241,13 +176,15 @@ class _LoginPageState extends State<LoginPage> {
     var internetConnectivity = await (Connectivity().checkConnectivity());
     if (internetConnectivity == ConnectivityResult.mobile || internetConnectivity == ConnectivityResult.wifi) {
       if (_loginFormKey.currentState.validate()) {
+        _loginFormKey.currentState.save();
         _progressDialog.show();
         try {
           final FirebaseAuth auth = FirebaseAuth.instance;
-          await auth.signInWithEmailAndPassword(email: _email.text.toString(), password: _password.text.toString());
+          print(_email);
+          await auth.signInWithEmailAndPassword(email: _email, password: _password);
           loginSuccessful = true;
         } catch (error) {
-          switch (error.code) {
+          switch (error.code.toString()) {
             case "ERROR_INVALID_EMAIL":
               errorMessage = 'E-Mail Format ist nicht korrekt.';
               break;

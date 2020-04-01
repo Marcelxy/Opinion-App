@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
+import 'package:opinion_app/util/colors.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -23,7 +24,7 @@ class _ProfilPageState extends State<ProfilPage> {
   @override
   void initState() {
     final StorageReference ref =
-        FirebaseStorage.instance.ref().child(/*firebaseUser.uid + */'HL2Af3a1jScG7X2jMv89jhRNePh2.jpg');
+        FirebaseStorage.instance.ref().child(/*firebaseUser.uid + */ 'HL2Af3a1jScG7X2jMv89jhRNePh2.jpg');
     imageURL = ref.getDownloadURL();
     SystemSettings.allowOnlyPortraitOrientation();
     super.initState();
@@ -68,13 +69,12 @@ class _ProfilPageState extends State<ProfilPage> {
             height: 250,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color.fromRGBO(143, 148, 251, 0.9), Colors.blue.shade400],
+                colors: [primaryBlue, Colors.blue.shade700],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
               borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(75.0),
-                bottomRight: Radius.circular(10.0),
+                bottomRight: Radius.circular(100.0),
               ),
             ),
             child: Center(
@@ -90,31 +90,36 @@ class _ProfilPageState extends State<ProfilPage> {
                         if (snapshot.hasData == false) {
                           return Center(child: CircularProgressIndicator());
                         } else if (snapshot.connectionState == ConnectionState.done) {
-                          return Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                          return Row(
                             children: <Widget>[
-                              Center(
+                              Padding(
+                                padding: const EdgeInsets.only(left: 28.0),
                                 child: imageURL == null ? noUserImage() : displayUserImage(),
                               ),
                               Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                                child: Text(
-                                  'E-Mail: ' + user.data['email'],
-                                  style: TextStyle(fontSize: 16.0, color: Colors.white),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                                child: Text(
-                                  'Benutzername: ' + user.data['username'],
-                                  style: TextStyle(fontSize: 16.0, color: Colors.white),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                                child: Text(
-                                  'Erfahrungspunkte: ' + user.data['xp'].toString(),
-                                  style: TextStyle(fontSize: 16.0, color: Colors.white),
+                                padding: const EdgeInsets.only(left: 28.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 10.0),
+                                      child: Text(
+                                        'E-Mail:\n' + user.data['email'],
+                                        style: TextStyle(fontSize: 16.0, color: Colors.white),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 10.0),
+                                      child: Text(
+                                        'Benutzername:\n' + user.data['username'],
+                                        style: TextStyle(fontSize: 16.0, color: Colors.white),
+                                      ),
+                                    ),
+                                    Text(
+                                      'Erfahrungspunkte:\n' + user.data['xp'].toString(),
+                                      style: TextStyle(fontSize: 16.0, color: Colors.white),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -139,13 +144,21 @@ class _ProfilPageState extends State<ProfilPage> {
                 if (snapshot.hasData == false) {
                   return CircularProgressIndicator();
                 }
+                // TODO hier weiter machen Rangliste schöner machen
                 return ListView(
                   children: snapshot.data.documents.map((DocumentSnapshot document) {
-                    return ListTile(
-                      leading: CircleAvatar(child: Text(document['username'][0])),
-                      title: Text(document['username']),
-                      trailing: Text(document['xp'].toString()),
+                    return Container(
+                      child: ListTile(
+                        leading: CircleAvatar(child: Text(document['username'][0])),
+                        title: Text(document['username']),
+                        trailing: Text(document['xp'].toString()),
+                      ),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
                     );
+
                   }).toList(),
                 );
               },
