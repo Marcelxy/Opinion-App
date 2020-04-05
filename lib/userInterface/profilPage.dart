@@ -148,10 +148,13 @@ class _ProfilPageState extends State<ProfilPage> {
                 return ListView(
                   children: snapshot.data.documents.map((DocumentSnapshot document) {
                     return Container(
-                      child: ListTile(
-                        leading: CircleAvatar(child: Text(document['username'][0])),
-                        title: Text(document['username']),
-                        trailing: Text(document['xp'].toString()),
+                      child: Card(
+                        elevation: 4.0,
+                        child: ListTile(
+                          leading: CircleAvatar(child: Text(document['username'][0])),
+                          title: Text(document['username']),
+                          trailing: Text(document['xp'].toString()),
+                        ),
                       ),
                       decoration: BoxDecoration(
                         shape: BoxShape.rectangle,

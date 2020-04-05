@@ -161,9 +161,9 @@ class _QuestionPageState extends State<QuestionPage> {
             Row(
               children: <Widget>[
                 CircleAvatar(
-                  child: Text(_question.creatorUsername[0]),
+                  child: Text(_question?.creatorUsername[0] ?? ''),
                 ),
-                Creator(creatorUsername: _question.creatorUsername),
+                Creator(creatorUsername: _question?.creatorUsername ?? ''),
                 Padding(
                   padding: const EdgeInsets.only(left: 35.0),
                   child: IconButton(

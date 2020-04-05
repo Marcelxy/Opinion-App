@@ -9,12 +9,12 @@ class AdminConsolePage extends StatefulWidget {
 }
 
 class _AdminConsolePageState extends State<AdminConsolePage> {
-
   @override
   void initState() {
     SystemSettings.allowOnlyPortraitOrientation();
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,7 +22,9 @@ class _AdminConsolePageState extends State<AdminConsolePage> {
       body: FutureBuilder<QuerySnapshot>(
         future: Firestore.instance.collection('questionRepository').getDocuments(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.hasError) return Text('Error: ${snapshot.error}');
+          if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          }
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:
               return Center(child: CircularProgressIndicator());
@@ -33,29 +35,51 @@ class _AdminConsolePageState extends State<AdminConsolePage> {
                 padding: const EdgeInsets.only(top: 20.0),
                 itemBuilder: (context, index) {
                   return Card(
-                    child: Column(
-                      children: <Widget>[
-                        Text(questions.elementAt(index).data['question'], textAlign: TextAlign.center),
-                        Text(questions.elementAt(index).data['answers'][0]),
-                        Text(questions.elementAt(index).data['answers'][1]),
-                        Row(
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
-                              child: Builder(builder: (BuildContext context) {
-                                return RaisedButton(
-                                  onPressed: () => _releaseQuestion(true, questions.elementAt(index).data['qid'].toString(), context),
-                                  child: Text('Freigeben'),
-                                );
-                              }),
-                            ),
-                            RaisedButton(
-                              onPressed: () => _releaseQuestion(false, questions.elementAt(index).data['qid'].toString(), context),
-                              child: Text('Nicht freigeben'),
-                            ),
-                          ],
-                        ),
-                      ],
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 30.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6.0),
+                            child: Text('Qid: ${questions.elementAt(index).data['qid']}'),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6.0),
+                            child: Text('Frage: ${questions.elementAt(index).data['question']}'),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6.0),
+                            child: Text('Antwort 1: ${questions.elementAt(index).data['answers'][0]}'),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6.0),
+                            child: Text('Antwort 2: ${questions.elementAt(index).data['answers'][1]}'),
+                          ),
+                          Row(
+                            children: <Widget>[
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                child: Builder(builder: (BuildContext context) {
+                                  return RaisedButton(
+                                    onPressed: () => _releaseQuestion(
+                                        true, questions.elementAt(index).data['qid'].toString(), context),
+                                    child: Text('Freigeben'),
+                                  );
+                                }),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 20.0),
+                                child: RaisedButton(
+                                  onPressed: () =>
+                                      _releaseQuestion(false, questions.elementAt(index).data['qid'].toString(), context),
+                                  child: Text('Nicht freigeben'),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
@@ -73,8 +97,7 @@ class _AdminConsolePageState extends State<AdminConsolePage> {
     status = release ? 'Freigegeben' : 'Nicht freigegeben';
     nextStatus = release ? 'releasedQuestions' : 'notReleasedQuestions';
     try {
-      DocumentSnapshot question =
-          await Firestore.instance.collection('questionRepository').document(qid).get();
+      DocumentSnapshot question = await Firestore.instance.collection('questionRepository').document(qid).get();
       await Firestore.instance.collection(nextStatus).getDocuments().then((myDocuments) async {
         FirebaseUser user = await FirebaseAuth.instance.currentUser();
         DocumentSnapshot _user = await Firestore.instance.collection('users').document(user.uid).get();
