@@ -31,4 +31,4 @@ A app to communicate our various opinions.
 
 ## Screens
 
-<img src="https://github.com/Marcelxy/Opinion-App/blob/master/assets/images/Screenshots/Registrierungs_Screenshot.jpg" width="280" height="480">   <img src="https://github.com/Marcelxy/Opinion-App/blob/master/assets/images/Screenshots/loginScreen.png" width="280" height="480"> <img src="https://github.com/Marcelxy/Opinion-App/blob/master/assets/images/Screenshots/resetPasswordScreen.png" width="280" height="480">
+<img src="https://github.com/Marcelxy/Opinion-App/blob/master/assets/images/Screenshots/Registrierungs_Screenshot.jpg" width="280" height="520">   <img src="https://github.com/Marcelxy/Opinion-App/blob/master/assets/images/Screenshots/loginScreen.png" width="280" height="480"> <img src="https://github.com/Marcelxy/Opinion-App/blob/master/assets/images/Screenshots/resetPasswordScreen.png" width="280" height="480">
