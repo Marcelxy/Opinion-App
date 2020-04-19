@@ -22,7 +22,7 @@ class HeadingState extends State<Heading> {
       child: FadeAnimation(
         1.6,
         Container(
-          margin: EdgeInsets.only(top: 70),
+          margin: const EdgeInsets.only(top: 75),
           child: Center(
             child: Text(widget.heading,
                 style: TextStyle(color: textOnSecondaryWhite, fontSize: 40, fontWeight: FontWeight.bold)),

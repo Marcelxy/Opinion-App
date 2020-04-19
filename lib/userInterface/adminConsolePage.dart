@@ -9,6 +9,7 @@ class AdminConsolePage extends StatefulWidget {
 }
 
 class _AdminConsolePageState extends State<AdminConsolePage> {
+
   @override
   void initState() {
     SystemSettings.allowOnlyPortraitOrientation();
@@ -42,19 +43,15 @@ class _AdminConsolePageState extends State<AdminConsolePage> {
                         children: <Widget>[
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 6.0),
-                            child: Text('Qid: ${questions.elementAt(index).data['qid']}'),
+                            child: Text('Qid: ${questions.elementAt(index).data['qid']}', style: TextStyle(fontSize: 18.0),),
                           ),
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 6.0),
-                            child: Text('Frage: ${questions.elementAt(index).data['question']}'),
+                            child: Text('Frage: ${questions.elementAt(index).data['question']}', style: TextStyle(fontSize: 18.0)),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 6.0),
-                            child: Text('Antwort 1: ${questions.elementAt(index).data['answers'][0]}'),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 6.0),
-                            child: Text('Antwort 2: ${questions.elementAt(index).data['answers'][1]}'),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: getAnswerList(questions, index),
                           ),
                           Row(
                             children: <Widget>[
@@ -71,8 +68,8 @@ class _AdminConsolePageState extends State<AdminConsolePage> {
                               Padding(
                                 padding: const EdgeInsets.only(left: 20.0),
                                 child: RaisedButton(
-                                  onPressed: () =>
-                                      _releaseQuestion(false, questions.elementAt(index).data['qid'].toString(), context),
+                                  onPressed: () => _releaseQuestion(
+                                      false, questions.elementAt(index).data['qid'].toString(), context),
                                   child: Text('Nicht freigeben'),
                                 ),
                               ),
@@ -88,6 +85,19 @@ class _AdminConsolePageState extends State<AdminConsolePage> {
         },
       ),
     );
+  }
+
+  List<Widget> getAnswerList(var questions, int index) {
+    var answerGroup = List<Widget>();
+    for (int i = 0; i < questions.elementAt(index).data['answers'].length; i++) {
+      answerGroup.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6.0),
+          child: Text('Antwort ${i + 1}: ${questions.elementAt(index).data['answers'][i]}', style: TextStyle(fontSize: 18.0)),
+        ),
+      );
+    }
+    return answerGroup;
   }
 
   Future<void> _releaseQuestion(bool release, String qid, BuildContext context) async {

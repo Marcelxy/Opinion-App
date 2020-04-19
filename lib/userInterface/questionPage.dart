@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:opinion_app/util/colors.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:opinion_app/models/question.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:opinion_app/widgets/creator.dart';
@@ -46,12 +47,12 @@ class _QuestionPageState extends State<QuestionPage> {
             _userCard(),
             Card(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-              margin: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 0.0),
+              margin: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 0.0),
               elevation: 8.0,
               child: Stack(
                 children: <Widget>[
                   Container(
-                    height: 500,
+                    height: (MediaQuery.of(context).size.height / 100) * 70,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(12.0)),
                       gradient: LinearGradient(
@@ -107,41 +108,45 @@ class _QuestionPageState extends State<QuestionPage> {
           future: _loadUserData(),
           builder: (context, snapshot) {
             if (snapshot.hasData == false) {
-              return Center(child: Text(''));
+              return _userData('             ', 0);
             } else if (snapshot.connectionState == ConnectionState.done) {
-              return FittedBox(
-                child: Row(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: Icon(Icons.person),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 6.0, right: 32.0, top: 14.0, bottom: 14.0),
-                      child: Text(
-                        _userSnapshot.data['username'],
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 6.0),
-                      child: Icon(Icons.new_releases),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 12.0),
-                      child: Text(
-                        'Erfahrungspunkte: ' + _userSnapshot.data['xp'].toString(),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
-                ),
-              );
+              return _userData(_userSnapshot.data['username'], _userSnapshot.data['xp']);
             }
-            return Center(child: Text(''));
+            return _userData(_userSnapshot.data['username'], _userSnapshot.data['xp']);
           },
         ),
       );
+
+  Widget _userData(String username, int xp) => FittedBox(
+    child: Row(
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.only(left: 20.0),
+          child: Icon(Icons.person),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 6.0, right: 32.0, top: 14.0, bottom: 14.0),
+          child: Text(
+            username,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 18.0),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 6.0),
+          child: Icon(Icons.new_releases),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 12.0),
+          child: Text(
+            'Erfahrungspunkte: ' + xp.toString(),
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 18.0),
+          ),
+        ),
+      ],
+    ),
+  );
 
   Future<DocumentSnapshot> _loadUserData() async {
     final FirebaseAuth auth = FirebaseAuth.instance;
@@ -161,11 +166,18 @@ class _QuestionPageState extends State<QuestionPage> {
             Row(
               children: <Widget>[
                 CircleAvatar(
-                  child: Text(_question?.creatorUsername[0] ?? ''),
+                  child: Text(
+                    _question?.creatorUsername[0] ?? '',
+                    style: GoogleFonts.cormorantGaramond(
+                      textStyle: TextStyle(
+                        fontSize: 19.0,
+                      ),
+                    ),
+                  ),
                 ),
                 Creator(creatorUsername: _question?.creatorUsername ?? ''),
                 Padding(
-                  padding: const EdgeInsets.only(left: 35.0),
+                  padding: EdgeInsets.only(left: (MediaQuery.of(context).size.width / 100) * 7),
                   child: IconButton(
                     icon: Icon(Icons.arrow_forward, color: Colors.white),
                     onPressed: () => _setNextQuestion(),
@@ -188,7 +200,7 @@ class _QuestionPageState extends State<QuestionPage> {
                     ),
                   ),
                   Text(_isEvaluateButtonEnabled ? '?' : _question.voting.toString(),
-                      style: TextStyle(color: textOnSecondaryWhite70)),
+                      style: TextStyle(color: textOnSecondaryWhite70, fontSize: 19.0)),
                   IconButton(
                     icon: Icon(Icons.thumb_down, color: textOnSecondaryWhite70),
                     onPressed: () => _isEvaluateButtonEnabled ? _setVoting(false) : null,
@@ -196,35 +208,36 @@ class _QuestionPageState extends State<QuestionPage> {
                 ],
               ),
             ),
-            _answerButton(0),
-            _answerButton(1),
+            for (int i = 0; i < _question.answers.length; i++) _answerButton(i),
           ],
         ),
       );
 
   Widget _questionText(double paddingLeft) => Padding(
-        padding: EdgeInsets.fromLTRB(paddingLeft, 70.0, 0.0, 24.0),
+        padding: EdgeInsets.fromLTRB(paddingLeft, 18.0, 0.0, 12.0),
         child: AutoSizeText(
           _question.question,
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 24.0, color: textOnSecondaryWhite),
-          minFontSize: 10.0,
+          style: GoogleFonts.cormorantGaramond(textStyle: TextStyle(fontSize: 22.0, color: textOnSecondaryWhite)),
+          minFontSize: 12.0,
           maxLines: 5,
         ),
       );
 
   Widget _answerButton(int answer) => Padding(
-        padding: const EdgeInsets.only(top: 24.0),
+        padding: const EdgeInsets.only(top: 14.0),
         child: SizedBox(
-          width: 270.0,
-          height: 40.0,
+          width: (MediaQuery.of(context).size.width / 100) * 80,
+          height: 36.0,
           child: RaisedButton(
             onPressed: () => _showQuestionResults(answer),
             shape: RoundedRectangleBorder(
               borderRadius: new BorderRadius.circular(8.0),
             ),
-            child: Text(
+            child: AutoSizeText(
               _question.answers[answer],
+              minFontSize: 12.0,
+              maxLines: 1,
             ),
             color: textOnSecondaryWhite,
           ),
@@ -276,7 +289,7 @@ class _QuestionPageState extends State<QuestionPage> {
     } catch (error) {
       print('SET VOTING ERROR: ' + error.toString());
       Scaffold.of(context).showSnackBar(SnackBar(
-        content: const Text('Frage Voting konnte nicht erhöht/erniedrigt werden. Bitte erneut versuchen.'),
+        content: const Text('Frage Voting konnte nicht erhöht/erniedrigt werden. Bitte versuche es erneut.'),
       ));
     }
   }
@@ -313,7 +326,14 @@ class _QuestionPageState extends State<QuestionPage> {
             Row(
               children: <Widget>[
                 CircleAvatar(
-                  child: Text(_question.creatorUsername[0]),
+                  child: Text(
+                    _question?.creatorUsername[0] ?? '',
+                    style: GoogleFonts.cormorantGaramond(
+                      textStyle: TextStyle(
+                        fontSize: 19.0,
+                      ),
+                    ),
+                  ),
                 ),
                 Creator(creatorUsername: _question.creatorUsername),
               ],
@@ -321,22 +341,28 @@ class _QuestionPageState extends State<QuestionPage> {
             Divider(color: Colors.white),
             _questionText(16.0),
             Padding(
-              padding: const EdgeInsets.only(bottom: 14.0, left: 18.0),
+              padding: const EdgeInsets.only(bottom: 12.0, left: 18.0),
               child: Text(
-                  _question
-                          .calculateOverallAnswerValue(_question.counterAnswer[0], _question.counterAnswer[1])
-                          .toString() +
-                      ' Antworten insgesamt',
+                  _question.calculateOverallAnswerValue(_question.counterAnswer).toString() + ' Antworten insgesamt',
                   style: TextStyle(color: textOnSecondaryWhite)),
             ),
-            _answerText(0),
-            _answerPercentProgressBar(1),
-            _answerText(1),
-            _answerPercentProgressBar(2),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: getResultList(),
+            ),
             _continueButton(),
           ],
         ),
       );
+
+  List<Widget> getResultList() {
+    var resultGroup = List<Widget>();
+    for (int i = 0; i < _question.answers.length; i++) {
+      resultGroup.add(_answerText(i));
+      resultGroup.add(_answerPercentProgressBar(i));
+    }
+    return resultGroup;
+  }
 
   Widget _answerText(int answer) => Padding(
         padding: const EdgeInsets.only(left: 18.0, bottom: 2.0),
@@ -344,16 +370,16 @@ class _QuestionPageState extends State<QuestionPage> {
       );
 
   Widget _answerPercentProgressBar(int answer) => Padding(
-        padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 20.0),
+        padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 6.0),
         child: LinearPercentIndicator(
-          width: 250.0,
+          width: (MediaQuery.of(context).size.width / 100) * 70,
           lineHeight: 14.0,
           percent: _question.calculatePercentValue(answer),
           backgroundColor: Colors.transparent.withOpacity(0.25),
           progressColor: textOnSecondaryWhite,
           center: Text(
             _question.calculatePercentValue(answer, true).toStringAsFixed(1) + "%",
-            style: new TextStyle(fontSize: 12.0),
+            style: new TextStyle(fontSize: 14.0, height: 0.7, fontWeight: FontWeight.w600),
           ),
           animation: true,
           animationDuration: 1000,
@@ -362,17 +388,18 @@ class _QuestionPageState extends State<QuestionPage> {
 
   Widget _continueButton() => Center(
         child: Padding(
-          padding: const EdgeInsets.only(top: 24.0),
+          padding: const EdgeInsets.only(top: 8.0),
           child: SizedBox(
-            width: 270.0,
-            height: 40.0,
+            width: (MediaQuery.of(context).size.width / 100) * 70,
+            height: 36.0,
             child: RaisedButton(
               onPressed: () => _setNextQuestion(),
               shape: RoundedRectangleBorder(
-                borderRadius: new BorderRadius.circular(6.0),
+                borderRadius: BorderRadius.circular(12.0),
               ),
               child: Text(
                 'Weiter',
+                style: TextStyle(fontSize: 22.0),
               ),
               color: textOnSecondaryWhite,
             ),
@@ -383,11 +410,7 @@ class _QuestionPageState extends State<QuestionPage> {
   _showQuestionResults(int answer) async {
     try {
       _increaseUserXp(2);
-      if (answer == 0) {
-        _question.counterAnswer[0]++;
-      } else if (answer == 1) {
-        _question.counterAnswer[1]++;
-      }
+      _question.counterAnswer[answer]++;
       await Firestore.instance
           .collection('releasedQuestions')
           .document(_questionList.documents[_randomSelectedQuestion].documentID)
@@ -400,13 +423,13 @@ class _QuestionPageState extends State<QuestionPage> {
     } catch (error) {
       print('SHOW QUESTION RESULTS ERROR: ' + error.toString());
       Scaffold.of(context).showSnackBar(SnackBar(
-        content: const Text('Frage Ergebnisse konnten nicht geladen werden. Bitte erneut versuchen.'),
+        content: const Text('Frage Ergebnisse konnten nicht geladen werden. Bitte versuche es erneut.'),
       ));
     }
   }
 
   /// ////////////////////////////////////////
-  ///     Aktuelle keine Fragen vorhanden
+  ///     Aktuell keine Fragen vorhanden
   /// ////////////////////////////////////////
 
   Widget _noQuestionsText() => Center(

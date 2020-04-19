@@ -32,8 +32,8 @@ class PercentProgressBarWidgetState extends State<PercentProgressBarWidget> {
           ),
           Align(
               child: Text(widget.percentTextValue.toStringAsFixed(1) + '%',
-                  style: TextStyle(fontSize: 12.0)),
-              alignment: Alignment.center),
+                  style: TextStyle(fontSize: 14.0, height: 0.85, fontWeight: FontWeight.w600)),
+              alignment: Alignment.center,),
         ],
       ),
     );

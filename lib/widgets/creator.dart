@@ -19,7 +19,7 @@ class CreatorState extends State<Creator> {
     return Align(
       alignment: Alignment.topLeft,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(8.0, 0.0, 0.0, 0.0),
+        padding: const EdgeInsets.only(left: 8.0),
         child: Text(
           'Frage wurde gestellt von:\n' + widget.creatorUsername,
           style: TextStyle(color: Colors.white),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// ////////////////////////////////////////
-///     Passwort Eingabefeld
+///         Passwort Eingabefeld
 /// ////////////////////////////////////////
 
 class PasswordTextFormField extends StatefulWidget {
@@ -14,7 +15,7 @@ class PasswordTextFormField extends StatefulWidget {
 }
 
 class _PasswordTextFormFieldState extends State<PasswordTextFormField> {
-  final _password = TextEditingController();
+  final TextEditingController _password = TextEditingController();
   bool _obscurePassword = false;
 
   @override
@@ -28,6 +29,12 @@ class _PasswordTextFormFieldState extends State<PasswordTextFormField> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
       child: TextFormField(
+        style: GoogleFonts.cormorantGaramond(
+          textStyle: TextStyle(
+            fontSize: 18.0,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         decoration: InputDecoration(
           icon: Icon(Icons.lock, size: IconTheme.of(context).size, color: IconTheme.of(context).color),
           suffixIcon: IconButton(

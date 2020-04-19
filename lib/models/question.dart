@@ -6,7 +6,9 @@ class Question {
   String creatorUsername;
   List<String> answers;
   List<int> counterAnswer;
+
   double _percentValue;
+  int _overallAnswerValue;
 
   Question(this.qid, this.question, this.answers, this.counterAnswer, this.creatorUsername, [this.status = 'Wird geprüft', this.voting = 0]);
 
@@ -16,14 +18,10 @@ class Question {
   /// return z.B. 0.58 oder 58.
   double calculatePercentValue(int answer, [bool multiply = false]) {
     _percentValue = 0.0;
-    if (counterAnswer[0] == 0 && counterAnswer[1] == 0) {
+    if (counterAnswer[answer] == 0) {
       return _percentValue;
     }
-    if (answer == 1) {
-      _percentValue = counterAnswer[0] / (counterAnswer[0] + counterAnswer[1]);
-    } else if (answer == 2) {
-      _percentValue = counterAnswer[1] / (counterAnswer[0] + counterAnswer[1]);
-    }
+    _percentValue = counterAnswer[answer] / _overallAnswerValue;
     if (multiply) {
       _percentValue *= 100;
     }
@@ -31,7 +29,11 @@ class Question {
   }
 
   /// Berechnet die Gesamtanzahl an Antworten für eine Frage.
-  int calculateOverallAnswerValue(int counterAnswer1, int counterAnswer2) {
-    return counterAnswer1 + counterAnswer2;
+  int calculateOverallAnswerValue(List<int> counterAnswer) {
+    _overallAnswerValue = 0;
+    for (int i = 0; i < counterAnswer.length; i++) {
+      _overallAnswerValue += counterAnswer[i];
+    }
+    return _overallAnswerValue;
   }
 }

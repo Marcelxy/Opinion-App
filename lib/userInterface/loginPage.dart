@@ -21,15 +21,10 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _loginFormKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _loginFormKey = GlobalKey<FormState>();
   ProgressDialog _progressDialog;
   String _email;
   String _password;
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   @override
   void initState() {
@@ -47,8 +42,8 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             children: <Widget>[
               Container(
-                height: 400,
-                decoration: BoxDecoration(
+                height: (MediaQuery.of(context).size.height / 100) * 53,
+                decoration: const BoxDecoration(
                   image: DecorationImage(image: AssetImage('assets/images/loginBackground.png'), fit: BoxFit.fill),
                 ),
                 child: Stack(
@@ -75,7 +70,7 @@ class _LoginPageState extends State<LoginPage> {
                             BoxShadow(
                               color: primaryBlue.withOpacity(0.4),
                               blurRadius: 20.0,
-                              offset: Offset(0, 10),
+                              offset: Offset(0, 8),
                             ),
                           ],
                         ),
@@ -113,7 +108,7 @@ class _LoginPageState extends State<LoginPage> {
                         child: Center(
                           child: ButtonTheme(
                             height: 50,
-                            minWidth: 300,
+                            minWidth: (MediaQuery.of(context).size.width / 100) * 80,
                             child: Builder(
                               builder: (BuildContext context) {
                                 return FlatButton(
@@ -121,7 +116,7 @@ class _LoginPageState extends State<LoginPage> {
                                   child: Text(
                                     'Login',
                                     style: const TextStyle(
-                                        color: textOnSecondaryWhite, fontSize: 16.0, fontWeight: FontWeight.bold),
+                                        color: textOnSecondaryWhite, fontSize: 20.0, fontWeight: FontWeight.bold),
                                   ),
                                 );
                               },
@@ -139,7 +134,7 @@ class _LoginPageState extends State<LoginPage> {
                         onTap: () => _toPage(context, ForgotPasswordPage()),
                         child: Text(
                           'Passwort vergessen?',
-                          style: const TextStyle(color: primaryBlue, fontSize: 16.0),
+                          style: const TextStyle(color: primaryBlue, fontSize: 18.0, fontWeight: FontWeight.w500),
                         ),
                       ),
                     ),
@@ -152,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                         onTap: () => _toPage(context, RegisterPage()),
                         child: Text(
                           'Zur Registrierung',
-                          style: const TextStyle(color: primaryBlue, fontSize: 16.0),
+                          style: const TextStyle(color: primaryBlue, fontSize: 18.0, fontWeight: FontWeight.w500),
                         ),
                       ),
                     ),
@@ -180,7 +175,6 @@ class _LoginPageState extends State<LoginPage> {
         _progressDialog.show();
         try {
           final FirebaseAuth auth = FirebaseAuth.instance;
-          print(_email);
           await auth.signInWithEmailAndPassword(email: _email, password: _password);
           loginSuccessful = true;
         } catch (error) {
@@ -201,7 +195,7 @@ class _LoginPageState extends State<LoginPage> {
               errorMessage = 'Zu viele ungültige Versuche. Versuchen sie es bitte später erneut.';
               break;
             default:
-              errorMessage = 'Unbekannter Fehler ist aufgetreten. Versuchen sie es erneut.';
+              errorMessage = 'Unbekannter Fehler ist aufgetreten. Bitte versuche es erneut.';
           }
           Scaffold.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
         }

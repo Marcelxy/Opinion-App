@@ -11,7 +11,7 @@ class Light1 extends StatelessWidget {
       child: FadeAnimation(
         1,
         Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage('assets/images/light1.png'),
             ),

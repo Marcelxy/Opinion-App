@@ -18,14 +18,9 @@ class ForgotPasswordPage extends StatefulWidget {
 }
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
-  final _forgotPasswordKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _forgotPasswordKey = GlobalKey<FormState>();
   ProgressDialog _progressDialog;
   String _email;
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   @override
   void initState() {
@@ -43,8 +38,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           child: Column(
             children: <Widget>[
               Container(
-                height: 400,
-                decoration: BoxDecoration(
+                height: (MediaQuery.of(context).size.height / 100) * 53,
+                decoration: const BoxDecoration(
                   image: DecorationImage(image: AssetImage('assets/images/loginBackground.png'), fit: BoxFit.fill),
                 ),
                 child: Stack(
@@ -74,7 +69,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                             BoxShadow(
                               color: primaryBlue.withOpacity(0.4),
                               blurRadius: 20.0,
-                              offset: Offset(0, 10),
+                              offset: Offset(0, 8),
                             ),
                           ],
                         ),
@@ -109,7 +104,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         child: Center(
                           child: ButtonTheme(
                             height: 50,
-                            minWidth: 300,
+                            minWidth: (MediaQuery.of(context).size.width / 100) * 80,
                             child: Builder(
                               builder: (BuildContext context) {
                                 return FlatButton(
@@ -117,7 +112,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                   child: Text(
                                     'Passwort zurücksetzen',
                                     style: TextStyle(
-                                        color: textOnSecondaryWhite, fontSize: 16.0, fontWeight: FontWeight.bold),
+                                        color: textOnSecondaryWhite, fontSize: 20.0, fontWeight: FontWeight.bold),
                                   ),
                                 );
                               },
@@ -127,7 +122,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       ),
                     ),
                     SizedBox(
-                      height: 45.0,
+                      height: 40.0,
                     ),
                     FadeAnimation(
                       1.5,
@@ -135,7 +130,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         onTap: () => _toPage(context, LoginPage()),
                         child: Text(
                           'Zum Login',
-                          style: TextStyle(color: primaryBlue, fontSize: 16.0),
+                          style: TextStyle(color: primaryBlue, fontSize: 18.0, fontWeight: FontWeight.w500),
                         ),
                       ),
                     ),
@@ -182,7 +177,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               errorMessage = 'Zu viele ungültige Versuche. Versuchen sie es bitte später erneut.';
               break;
             default:
-              errorMessage = 'Unbekannter Fehler ist aufgetreten. Versuchen sie es erneut.';
+              errorMessage = 'Unbekannter Fehler ist aufgetreten. Bitte versuche es erneut.';
           }
           Scaffold.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
         }

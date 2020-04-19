@@ -12,7 +12,7 @@ class Clock extends StatelessWidget {
       child: FadeAnimation(
         1.3,
         Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage('assets/images/clock.png'),
             ),

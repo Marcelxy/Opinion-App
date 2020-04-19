@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:opinion_app/util/theme.dart';
 import 'package:opinion_app/util/colors.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:opinion_app/widgets/clock.dart';
 import 'package:opinion_app/widgets/light1.dart';
@@ -30,8 +31,8 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final _registerFormKey = GlobalKey<FormState>();
-  final _username = TextEditingController();
+  final GlobalKey<FormState> _registerFormKey = GlobalKey<FormState>();
+  final TextEditingController _username = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   ProgressDialog _progressDialog;
   String _email;
@@ -65,8 +66,8 @@ class _RegisterPageState extends State<RegisterPage> {
           child: Column(
             children: <Widget>[
               Container(
-                height: 400,
-                decoration: BoxDecoration(
+                height: (MediaQuery.of(context).size.height / 100) * 53,
+                decoration: const BoxDecoration(
                   image: DecorationImage(image: AssetImage('assets/images/loginBackground.png'), fit: BoxFit.fill),
                 ),
                 child: Stack(
@@ -79,7 +80,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 0.0),
+                padding: const EdgeInsets.symmetric(horizontal: 27.0, vertical: 0.0),
                 child: Column(
                   children: <Widget>[
                     FadeAnimation(
@@ -93,7 +94,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             BoxShadow(
                               color: primaryBlue.withOpacity(0.4),
                               blurRadius: 20.0,
-                              offset: Offset(0, 10),
+                              offset: Offset(0, 8),
                             ),
                           ],
                         ),
@@ -132,15 +133,17 @@ class _RegisterPageState extends State<RegisterPage> {
                         child: Center(
                           child: ButtonTheme(
                             height: 50,
-                            minWidth: 300,
+                            minWidth: (MediaQuery.of(context).size.width / 100) * 80,
                             child: Builder(
                               builder: (BuildContext context) {
                                 return FlatButton(
                                   onPressed: () => _register(context),
                                   child: Text(
                                     'Registrieren',
-                                    style: const TextStyle(
-                                        color: textOnSecondaryWhite, fontSize: 16.0, fontWeight: FontWeight.bold),
+                                    style: GoogleFonts.cormorantGaramond(
+                                      textStyle: TextStyle(
+                                          color: textOnSecondaryWhite, fontSize: 20.0, fontWeight: FontWeight.bold),
+                                    ),
                                   ),
                                 );
                               },
@@ -158,7 +161,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         onTap: () => _toPage(context, LoginPage()),
                         child: Text(
                           'Zum Login',
-                          style: const TextStyle(color: primaryBlue, fontSize: 16.0),
+                          style: const TextStyle(color: primaryBlue, fontSize: 18.0, fontWeight: FontWeight.w500),
                         ),
                       ),
                     ),
@@ -179,6 +182,12 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget _usernameTextFormField() => Container(
         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
         child: TextFormField(
+          style: GoogleFonts.cormorantGaramond(
+            textStyle: TextStyle(
+              fontSize: 18.0,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           decoration: InputDecoration(
             icon: Icon(Icons.person, size: IconTheme.of(context).size, color: IconTheme.of(context).color),
             labelText: 'Benutzername...',
@@ -225,7 +234,7 @@ class _RegisterPageState extends State<RegisterPage> {
               errorMessage = 'E-Mail ist bereits registriert.';
               break;
             default:
-              errorMessage = 'Unbekannter Fehler ist aufgetreten. Bitte erneut versuchen.';
+              errorMessage = 'Unbekannter Fehler ist aufgetreten. Bitte versuche es erneut.';
           }
           Scaffold.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
         }
@@ -256,9 +265,11 @@ class _RegisterPageState extends State<RegisterPage> {
       }
     } catch (error) {
       print('CREATE USER IN CLOUD FIRESTORE ERROR: ' + error.toString());
-      Scaffold.of(context).showSnackBar(SnackBar(
-        content: const Text('Benutzer Registrierung fehlgeschlagen. Bitte erneut versuchen.'),
-      ));
+      Scaffold.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Benutzer Registrierung fehlgeschlagen. Bitte versuche es erneut.'),
+        ),
+      );
     }
   }
 

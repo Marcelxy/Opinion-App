@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:email_validator/email_validator.dart';
 
 /// ////////////////////////////////////////
-///     E-Mail Eingabefeld
+///         E-Mail Eingabefeld
 /// ////////////////////////////////////////
 
 class EMailTextFormField extends StatefulWidget {
@@ -15,7 +16,7 @@ class EMailTextFormField extends StatefulWidget {
 }
 
 class _EMailTextFormFieldState extends State<EMailTextFormField> {
-  final _email = TextEditingController();
+  final TextEditingController _email = TextEditingController();
 
   @override
   void dispose() {
@@ -28,6 +29,12 @@ class _EMailTextFormFieldState extends State<EMailTextFormField> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
       child: TextFormField(
+        style: GoogleFonts.cormorantGaramond(
+          textStyle: TextStyle(
+            fontSize: 18.0,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         decoration: InputDecoration(
           icon: Icon(Icons.email, size: IconTheme.of(context).size, color: IconTheme.of(context).color),
           labelText: 'E-Mail...',

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:opinion_app/util/colors.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,16 +17,12 @@ class ProfilPage extends StatefulWidget {
 
 class _ProfilPageState extends State<ProfilPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  FirebaseUser firebaseUser;
-  DocumentSnapshot user;
-  StorageReference firebaseStorageRef;
-  var imageURL;
+  FirebaseUser _firebaseUser;
+  DocumentSnapshot _user;
+  var _imageURL;
 
   @override
   void initState() {
-    final StorageReference ref =
-        FirebaseStorage.instance.ref().child(/*firebaseUser.uid + */ 'HL2Af3a1jScG7X2jMv89jhRNePh2.jpg');
-    imageURL = ref.getDownloadURL();
     SystemSettings.allowOnlyPortraitOrientation();
     super.initState();
   }
@@ -36,7 +33,15 @@ class _ProfilPageState extends State<ProfilPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Color.fromRGBO(143, 148, 251, 0.9),
-        title: Text('Profil'),
+        title: Text(
+          'Profil',
+          style: GoogleFonts.cormorantGaramond(
+            textStyle: TextStyle(
+              fontSize: 22.0,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
         centerTitle: true,
         leading: FutureBuilder(
             future: _loadUserData(),
@@ -66,7 +71,7 @@ class _ProfilPageState extends State<ProfilPage> {
       body: Column(
         children: <Widget>[
           Container(
-            height: 250,
+            height: (MediaQuery.of(context).size.height / 100) * 33,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [primaryBlue, Colors.blue.shade700],
@@ -87,14 +92,15 @@ class _ProfilPageState extends State<ProfilPage> {
                     child: FutureBuilder(
                       future: _loadUserData(),
                       builder: (context, snapshot) {
-                        if (snapshot.hasData == false) {
+                        if (snapshot.connectionState == ConnectionState.none ||
+                            snapshot.connectionState == ConnectionState.waiting) {
                           return Center(child: CircularProgressIndicator());
                         } else if (snapshot.connectionState == ConnectionState.done) {
                           return Row(
                             children: <Widget>[
                               Padding(
                                 padding: const EdgeInsets.only(left: 28.0),
-                                child: imageURL == null ? noUserImage() : displayUserImage(),
+                                child: _imageURL == null ? noUserImage() : displayUserImage(),
                               ),
                               Padding(
                                 padding: const EdgeInsets.only(left: 28.0),
@@ -104,20 +110,20 @@ class _ProfilPageState extends State<ProfilPage> {
                                     Padding(
                                       padding: const EdgeInsets.only(bottom: 10.0),
                                       child: Text(
-                                        'E-Mail:\n' + user.data['email'],
-                                        style: TextStyle(fontSize: 16.0, color: Colors.white),
+                                        'E-Mail:\n' + _user.data['email'],
+                                        style: TextStyle(fontSize: 18.0, color: Colors.white),
                                       ),
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.only(bottom: 10.0),
                                       child: Text(
-                                        'Benutzername:\n' + user.data['username'],
-                                        style: TextStyle(fontSize: 16.0, color: Colors.white),
+                                        'Benutzername:\n' + _user.data['username'],
+                                        style: TextStyle(fontSize: 18.0, color: Colors.white),
                                       ),
                                     ),
                                     Text(
-                                      'Erfahrungspunkte:\n' + user.data['xp'].toString(),
-                                      style: TextStyle(fontSize: 16.0, color: Colors.white),
+                                      'Erfahrungspunkte:\n' + _user.data['xp'].toString(),
+                                      style: TextStyle(fontSize: 18.0, color: Colors.white),
                                     ),
                                   ],
                                 ),
@@ -134,7 +140,7 @@ class _ProfilPageState extends State<ProfilPage> {
             ),
           ),
           Container(
-            height: 300,
+            height: (MediaQuery.of(context).size.height / 100) * 45,
             child: StreamBuilder<QuerySnapshot>(
               stream: _loadHighscoreUser().snapshots(),
               builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -144,16 +150,34 @@ class _ProfilPageState extends State<ProfilPage> {
                 if (snapshot.hasData == false) {
                   return CircularProgressIndicator();
                 }
-                // TODO hier weiter machen Rangliste schöner machen
                 return ListView(
                   children: snapshot.data.documents.map((DocumentSnapshot document) {
                     return Container(
                       child: Card(
                         elevation: 4.0,
                         child: ListTile(
-                          leading: CircleAvatar(child: Text(document['username'][0])),
-                          title: Text(document['username']),
-                          trailing: Text(document['xp'].toString()),
+                          leading: CircleAvatar(
+                            child: Text(
+                              document['username'][0],
+                              style: GoogleFonts.cormorantGaramond(
+                                textStyle: TextStyle(
+                                  fontSize: 19.0,
+                                ),
+                              ),
+                            ),
+                          ),
+                          title: Text(
+                            document['username'],
+                            style: GoogleFonts.cormorantGaramond(
+                              textStyle: TextStyle(
+                                fontSize: 18.0,
+                              ),
+                            ),
+                          ),
+                          trailing: Text(
+                            document['xp'].toString(),
+                            style: TextStyle(fontSize: 18.0),
+                          ),
                         ),
                       ),
                       decoration: BoxDecoration(
@@ -161,7 +185,6 @@ class _ProfilPageState extends State<ProfilPage> {
                         borderRadius: BorderRadius.circular(4.0),
                       ),
                     );
-
                   }).toList(),
                 );
               },
@@ -200,7 +223,7 @@ class _ProfilPageState extends State<ProfilPage> {
             },
             child: CircleAvatar(
               radius: 40.0,
-              backgroundImage: NetworkImage(imageURL),
+              backgroundImage: NetworkImage(_imageURL),
             ),
           ),
         ],
@@ -210,18 +233,18 @@ class _ProfilPageState extends State<ProfilPage> {
 
   _saveUserImageInCloudStorage() async {
     File userImage = await ImagePicker.pickImage(source: ImageSource.gallery);
-    final StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child(firebaseUser.uid + '.jpg');
+    final StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child(_firebaseUser.uid + '.jpg');
     final StorageUploadTask uploadTask = firebaseStorageRef.putFile(userImage);
-    imageURL = await (await uploadTask.onComplete).ref.getDownloadURL();
+    _imageURL = await (await uploadTask.onComplete).ref.getDownloadURL();
     setState(() {});
   }
 
   Future<DocumentSnapshot> _loadUserData() async {
-    firebaseUser = await _auth.currentUser();
-    user = await Firestore.instance.collection('users').document(firebaseUser.uid).get();
-    final ref = FirebaseStorage.instance.ref().child(firebaseUser.uid + '.jpg');
-    imageURL = await ref.getDownloadURL();
-    return user;
+    _firebaseUser = await _auth.currentUser();
+    _user = await Firestore.instance.collection('users').document(_firebaseUser.uid).get();
+    final ref = FirebaseStorage.instance.ref().child(_firebaseUser.uid + '.jpg');
+    _imageURL = await ref.getDownloadURL();
+    return _user;
   }
 
   Query _loadHighscoreUser() {
@@ -229,7 +252,7 @@ class _ProfilPageState extends State<ProfilPage> {
   }
 
   bool _isAdmin() {
-    if (firebaseUser.email == "marcel.geirhos@gmail.com") {
+    if (_firebaseUser.email == "marcel.geirhos@gmail.com") {
       return true;
     }
     return false;

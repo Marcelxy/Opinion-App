@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:opinion_app/util/colors.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:opinion_app/models/question.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:opinion_app/util/systemSettings.dart';
-import 'package:opinion_app/userInterface/createQuestionPage.dart';
 import 'package:opinion_app/widgets/percentProgressBar.dart';
+import 'package:opinion_app/userInterface/createQuestionPage.dart';
 
 class OwnQuestionPage extends StatefulWidget {
   @override
@@ -37,7 +38,7 @@ class _OwnQuestionPageState extends State<OwnQuestionPage> {
         Padding(
           padding: const EdgeInsets.fromLTRB(6.0, 36.0, 6.0, 8.0),
           child: Container(
-            height: 50,
+            height: (MediaQuery.of(context).size.height / 100) * 7,
             color: secondaryBackgroundWhite,
             child: Wrap(
               spacing: 5.0,
@@ -49,7 +50,7 @@ class _OwnQuestionPageState extends State<OwnQuestionPage> {
           ),
         ),
         Container(
-          height: 550,
+          height: (MediaQuery.of(context).size.height / 100) * 75,
           child: Scaffold(
             body: FutureBuilder(
                 future: _loadOwnQuestionData(),
@@ -78,30 +79,37 @@ class _OwnQuestionPageState extends State<OwnQuestionPage> {
   /// ////////////////////////////////////////
 
   Widget _statusBar() => Wrap(
-    children: List<Widget>.generate(
-      4,
+        children: List<Widget>.generate(
+          4,
           (int index) {
-        return ChoiceChip(
-          label: Text(_status[index]),
-          labelStyle: _value == index
-              ? TextStyle(color: textOnSecondaryWhite70, fontSize: 10.0, fontWeight: FontWeight.bold)
-              : TextStyle(color: Colors.blue.shade600, fontSize: 10.0, fontWeight: FontWeight.bold),
-          selected: _value == index,
-          backgroundColor: Color(0xffededed),
-          onSelected: (bool selected) {
-            setState(
+            return ChoiceChip(
+              label: Text(
+                _status[index],
+                style: GoogleFonts.cormorantGaramond(
+                  textStyle: TextStyle(
+                    fontSize: 12.0,
+                  ),
+                ),
+              ),
+              labelStyle: _value == index
+                  ? TextStyle(color: textOnSecondaryWhite70, fontSize: 10.0, fontWeight: FontWeight.bold)
+                  : TextStyle(color: Colors.blue.shade600, fontSize: 10.0, fontWeight: FontWeight.bold),
+              selected: _value == index,
+              backgroundColor: Color(0xffededed),
+              onSelected: (bool selected) {
+                setState(
                   () {
-                if (_value != index) {
-                  _value = selected ? index : null;
-                }
+                    if (_value != index) {
+                      _value = selected ? index : null;
+                    }
+                  },
+                );
               },
+              selectedColor: primaryBlue.withOpacity(0.6),
             );
           },
-          selectedColor: primaryBlue.withOpacity(0.6),
-        );
-      },
-    ).toList(),
-  );
+        ).toList(),
+      );
 
   String _getQuestionCollection() {
     if (_value == 0) {
@@ -121,63 +129,66 @@ class _OwnQuestionPageState extends State<OwnQuestionPage> {
   /// ////////////////////////////////////////
 
   Widget _ownQuestions() => Container(
-    child: ListWheelScrollView(itemExtent: 400, diameterRatio: 6.0, children: <Widget>[
-      ..._ownQuestionList.map((Question question) {
-        return Container(
-          margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
-          width: double.infinity,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(12.0)),
-            gradient: LinearGradient(
-              colors: [Colors.blue.shade800, primaryBlue],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-          ),
-          padding: EdgeInsets.all(25),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text('Frage: ' + question.question,
-                  style: TextStyle(color: textOnSecondaryWhite, fontSize: 16.0)),
-              Divider(color: Colors.white),
-              Row(
+        child: ListWheelScrollView(itemExtent: 470, diameterRatio: 6.0, children: <Widget>[
+          ..._ownQuestionList.map((Question question) {
+            return Container(
+              margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                gradient: LinearGradient(
+                  colors: [Colors.blue.shade800, primaryBlue],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+              padding: EdgeInsets.all(25),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Icon(
-                    Icons.thumbs_up_down,
-                    color: textOnSecondaryWhite70,
-                    size: 22.0,
+                  Text('Frage: ' + question.question, style: TextStyle(color: textOnSecondaryWhite, fontSize: 16.0)),
+                  Divider(color: Colors.white),
+                  Row(
+                    children: <Widget>[
+                      Icon(
+                        Icons.thumbs_up_down,
+                        color: textOnSecondaryWhite70,
+                        size: 22.0,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Text(question.voting.toString(), style: TextStyle(color: textOnSecondaryWhite70)),
+                      ),
+                    ],
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(question.voting.toString(), style: TextStyle(color: textOnSecondaryWhite70)),
+                    padding: const EdgeInsets.only(top: 12.0, bottom: 8.0),
+                    child: Text(
+                        question.calculateOverallAnswerValue(question.counterAnswer).toString() +
+                            ' Antworten insgesamt',
+                        style: TextStyle(color: textOnSecondaryWhite)),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: getResultList(question),
                   ),
                 ],
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 12.0, bottom: 8.0),
-                child: Text(
-                    question
-                        .calculateOverallAnswerValue(
-                        question.counterAnswer[0], question.counterAnswer[1])
-                        .toString() +
-                        ' Antworten insgesamt',
-                    style: TextStyle(color: textOnSecondaryWhite)),
-              ),
-              Text(question.answers[0], style: TextStyle(color: textOnSecondaryWhite)),
-              PercentProgressBarWidget(
-                  percentValue: question.calculatePercentValue(1, false),
-                  percentTextValue: question.calculatePercentValue(1, true)),
-              Text(question.answers[1], style: TextStyle(color: textOnSecondaryWhite)),
-              PercentProgressBarWidget(
-                  percentValue: question.calculatePercentValue(2, false),
-                  percentTextValue: question.calculatePercentValue(2, true)),
-            ],
-          ),
-        );
-      }),
-    ]),
-  );
+            );
+          }),
+        ]),
+      );
+
+  List<Widget> getResultList(Question question) {
+    var resultGroup = List<Widget>();
+    for (int i = 0; i < question.answers.length; i++) {
+      resultGroup.add(Text(question.answers[i], style: TextStyle(color: textOnSecondaryWhite)));
+      resultGroup.add(PercentProgressBarWidget(
+          percentValue: question.calculatePercentValue(i, false),
+          percentTextValue: question.calculatePercentValue(i, true)));
+    }
+    return resultGroup;
+  }
 
   Future<List<Question>> _loadOwnQuestionData() async {
     String collection = _getQuestionCollection();
@@ -214,16 +225,16 @@ class _OwnQuestionPageState extends State<OwnQuestionPage> {
   /// ////////////////////////////////////////
 
   Widget _noneQuestionData() => Center(
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-      child: Text(
-        'Bisher keine Daten vorhanden. Erstelle eine neue Frage.',
-        style: TextStyle(
-          fontSize: 20.0,
-          color: Color.fromRGBO(143, 148, 251, 1),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Text(
+            'Bisher keine Daten vorhanden. Erstelle eine neue Frage.',
+            style: TextStyle(
+              fontSize: 20.0,
+              color: Color.fromRGBO(143, 148, 251, 1),
+            ),
+            textAlign: TextAlign.center,
+          ),
         ),
-        textAlign: TextAlign.center,
-      ),
-    ),
-  );
+      );
 }

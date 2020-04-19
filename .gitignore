@@ -33,6 +33,7 @@
 # Android related
 **/android/key.properties
 **/android/app/Users/Marce/key.jks
+**/android/app/google-services.json
 
 # Web related
 lib/generated_plugin_registrant.dart

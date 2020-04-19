@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:opinion_app/util/colors.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 final ThemeData _opinionAppTheme = buildOpinionAppTheme();
 
@@ -19,9 +20,16 @@ ThemeData buildOpinionAppTheme() {
 
 _buildOpinionAppTextTheme(TextTheme base) {
   return base.copyWith(
-    body1: TextStyle(
-      color: textOnPrimaryBlack,
-      fontSize: 14.0,
+    body1: GoogleFonts.cormorantGaramond(
+      textStyle: TextStyle(
+        color: textOnPrimaryBlack,
+        fontSize: 17.0,
+      ),
+    ),
+    button: GoogleFonts.cormorantGaramond(
+      textStyle: TextStyle(
+        fontSize: 20.0,
+      ),
     ),
   );
 }

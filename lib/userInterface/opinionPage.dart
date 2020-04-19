@@ -11,18 +11,18 @@ class OpinionPage extends StatefulWidget {
 }
 
 class _OpinionPageState extends State<OpinionPage> {
-  int currentPageNumber;
+  int _currentPageNumber;
   final List<Widget> pages = [
     QuestionPage(),
     OwnQuestionPage(),
     ProfilPage(),
   ];
-  Widget currentPage = QuestionPage();
-  final PageStorageBucket bucket = PageStorageBucket();
+  Widget _currentPage = QuestionPage();
+  final PageStorageBucket _bucket = PageStorageBucket();
 
   @override
   void initState() {
-    currentPageNumber = 0;
+    _currentPageNumber = 0;
     SystemSettings.allowOnlyPortraitOrientation();
     super.initState();
   }
@@ -30,28 +30,28 @@ class _OpinionPageState extends State<OpinionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: PageStorage(bucket: bucket, child: currentPage),
+      body: PageStorage(bucket: _bucket, child: _currentPage),
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.question_answer, color: currentPageNumber == 0 ? primaryBlue : Colors.grey),
+            icon: Icon(Icons.question_answer, color: _currentPageNumber == 0 ? primaryBlue : Colors.grey),
             title: Text(
               'Fragen',
-              style: TextStyle(color: currentPageNumber == 0 ? primaryBlue : Colors.grey),
+              style: TextStyle(color: _currentPageNumber == 0 ? primaryBlue : Colors.grey, fontSize: 17.5),
             ),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle, color: currentPageNumber == 1 ? primaryBlue : Colors.grey),
+            icon: Icon(Icons.add_circle, color: _currentPageNumber == 1 ? primaryBlue : Colors.grey),
             title: Text(
               'Meine Fragen',
-              style: TextStyle(color: currentPageNumber == 1 ? primaryBlue : Colors.grey),
+              style: TextStyle(color: _currentPageNumber == 1 ? primaryBlue : Colors.grey, fontSize: 17.5),
             ),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person, color: currentPageNumber == 2 ? primaryBlue : Colors.grey),
+            icon: Icon(Icons.person, color: _currentPageNumber == 2 ? primaryBlue : Colors.grey),
             title: Text(
               'Profil',
-              style: TextStyle(color: currentPageNumber == 2 ? primaryBlue : Colors.grey),
+              style: TextStyle(color: _currentPageNumber == 2 ? primaryBlue : Colors.grey, fontSize: 17.5),
             ),
           ),
         ],
@@ -64,16 +64,16 @@ class _OpinionPageState extends State<OpinionPage> {
     setState(() {
       switch (index) {
         case 0:
-          currentPage = QuestionPage();
-          currentPageNumber = 0;
+          _currentPage = QuestionPage();
+          _currentPageNumber = 0;
           break;
         case 1:
-          currentPage = OwnQuestionPage();
-          currentPageNumber = 1;
+          _currentPage = OwnQuestionPage();
+          _currentPageNumber = 1;
           break;
         case 2:
-          currentPage = ProfilPage();
-          currentPageNumber = 2;
+          _currentPage = ProfilPage();
+          _currentPageNumber = 2;
           break;
       }
     });
